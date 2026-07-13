@@ -1,8 +1,8 @@
 import Google from 'next-auth/providers/google';
 import { encode as defaultEncode } from '@auth/core/jwt';
 import {
-    BROWSER_SESSION_MAX_AGE,
     getSessionMaxAge,
+    PWA_SESSION_MAX_AGE,
     SESSION_UPDATE_AGE,
 } from '@/lib/auth-session';
 
@@ -22,8 +22,10 @@ const authConfig = {
             allowDangerousEmailAccountLinking: true,
         }),
     ],
+    // jwt.maxAge / session.maxAge set the cookie lifetime Auth.js uses when writing
+    // the session cookie. Per-client JWT expiration is applied in encode below.
     jwt: {
-        maxAge: BROWSER_SESSION_MAX_AGE,
+        maxAge: PWA_SESSION_MAX_AGE,
         encode: async (params) => {
             const maxAge = getSessionMaxAge(params.token?.clientType);
 
@@ -35,7 +37,7 @@ const authConfig = {
     },
     session: {
         strategy: 'jwt',
-        maxAge: BROWSER_SESSION_MAX_AGE,
+        maxAge: PWA_SESSION_MAX_AGE,
         updateAge: SESSION_UPDATE_AGE,
     },
     pages: {
