@@ -1,4 +1,10 @@
 import Google from 'next-auth/providers/google';
+import { encode as defaultEncode } from '@auth/core/jwt';
+import {
+    BROWSER_SESSION_MAX_AGE,
+    getSessionMaxAge,
+    SESSION_UPDATE_AGE,
+} from '@/lib/auth-session';
 
 /**
  * Edge-compatible auth configuration
@@ -17,12 +23,20 @@ const authConfig = {
         }),
     ],
     jwt: {
-        maxAge: 6 * 60 * 60, // 6 hours in seconds
+        maxAge: BROWSER_SESSION_MAX_AGE,
+        encode: async (params) => {
+            const maxAge = getSessionMaxAge(params.token?.clientType);
+
+            return defaultEncode({
+                ...params,
+                maxAge,
+            });
+        },
     },
     session: {
         strategy: 'jwt',
-        maxAge: 6 * 60 * 60, // 6 hours in seconds
-        updateAge: 60 * 60, // Optional: refresh session every hour
+        maxAge: BROWSER_SESSION_MAX_AGE,
+        updateAge: SESSION_UPDATE_AGE,
     },
     pages: {
         signIn: '/auth/login',

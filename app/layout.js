@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/components/auth/form/theme-provider';
 import { Analytics } from '@vercel/analytics/next';
 import { auth } from '@/auth';
 import { SessionProvider } from 'next-auth/react';
+import { ClientTypeSync } from '@/components/auth/client-type-sync';
 import { Toaster } from 'sonner';
 import Script from 'next/script';
 
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }) {
             </head>
             <body className={`${nunitoSans.className} antialiased h-full`} suppressHydrationWarning>
                 <SessionProvider session={session}>
+                    <ClientTypeSync />
                     <ThemeProvider
                         attribute="class"
                         defaultTheme="system"

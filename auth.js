@@ -2,11 +2,13 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { CredentialsSignin } from 'next-auth';
 import bcryptjs from 'bcryptjs';
+import { cookies } from 'next/headers';
 import authConfig from '@/auth.config';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { db } from '@/lib/db';
 import { getUserById, getUserByEmail, getCombinedPermissionsForUser } from '@/data/user-db';
 import { LoginSchema } from '@/schemas';
+import { CLIENT_TYPE, CLIENT_TYPE_COOKIE, resolveClientType } from '@/lib/auth-session';
 
 /**
  * Custom error class for credentials sign in
@@ -155,6 +157,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         async jwt({ token, user, trigger, session }) {
             if (trigger === 'update' && session) {
+                if (session.clientType === CLIENT_TYPE.PWA) {
+                    token.clientType = CLIENT_TYPE.PWA;
+                }
+
                 // START IMPERSONATING
                 if (session.impersonating) {
                     token.originalUser = session.originalUser; // Save original user
@@ -171,6 +177,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             // Only populated on sign in
             if (user) {
+                const cookieStore = await cookies();
+                token.clientType = resolveClientType(
+                    cookieStore.get(CLIENT_TYPE_COOKIE)?.value
+                );
+
                 const { systemPermissions, fieldPermissions } = await getCombinedPermissionsForUser(
                     user.id
                 );
