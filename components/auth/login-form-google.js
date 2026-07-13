@@ -4,6 +4,8 @@ import { FcGoogle } from 'react-icons/fc';
 import { Button } from '@/components/ui/button';
 import { CardWrapperComponent } from '@/components/auth/card-wrapper';
 import { loginGoogle } from '@/actions/login-google';
+import { setClientType } from '@/actions/set-client-type';
+import { getAuthClientTypeFromWindow } from '@/lib/auth-session';
 import { useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { Spinner } from '@/components/ui/spinner';
@@ -16,6 +18,7 @@ export const LoginFormGoogleComponent = () => {
 
     const handleGoogleLogin = () => {
         startTransition(async () => {
+            await setClientType(getAuthClientTypeFromWindow());
             await loginGoogle(callbackUrl);
         });
     };

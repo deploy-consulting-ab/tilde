@@ -19,6 +19,8 @@ import { FormSuccess } from '@/components/auth/form/form-success';
 import { CardWrapperComponent } from '@/components/auth/card-wrapper';
 
 import { login } from '@/actions/login';
+import { setClientType } from '@/actions/set-client-type';
+import { getAuthClientTypeFromWindow } from '@/lib/auth-session';
 import { useState, useTransition } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
@@ -46,6 +48,7 @@ export const LoginFormComponent = () => {
         setError('');
 
         startTransition(async () => {
+            await setClientType(getAuthClientTypeFromWindow());
             const response = await login(values, callbackUrl);
             setSuccess(response.success);
             setError(response.error);
