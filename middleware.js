@@ -11,7 +11,9 @@ import {
 
 import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
+import { getToken } from 'next-auth/jwt';
 import authConfig from '@/auth.config';
+import { SESSION_REVOKED_ERROR } from '@/lib/auth-session';
 import { toPermissionSet } from '@/lib/utils';
 
 /**
@@ -20,11 +22,17 @@ import { toPermissionSet } from '@/lib/utils';
  */
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export default auth(async (req) => {
     const { nextUrl } = req;
+    const token = await getToken({
+        req,
+        secret: process.env.AUTH_SECRET,
+        secureCookie: process.env.NODE_ENV === 'production',
+    });
+    const isSessionRevoked = token?.error === SESSION_REVOKED_ERROR;
 
-    const isLoggedIn = !!req.auth;
-    const user = req.auth?.user;
+    const isLoggedIn = !!req.auth?.user && !isSessionRevoked;
+    const user = isSessionRevoked ? undefined : req.auth?.user;
 
     const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
     const isAuthRoute = AUTH_ROUTES.includes(nextUrl.pathname);
@@ -37,11 +45,8 @@ export default auth((req) => {
         return NextResponse.next();
     }
 
-    // Auth routes
+    // Auth routes — login page validates sessions server-side (needs DB access)
     if (isAuthRoute) {
-        if (isLoggedIn) {
-            return Response.redirect(new URL(HOME_ROUTE, nextUrl));
-        }
         return NextResponse.next();
     }
 

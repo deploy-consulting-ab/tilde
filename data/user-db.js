@@ -230,14 +230,48 @@ export const createUser = async (data) => {
 
 export const updateUser = async (id, data) => {
     try {
+        const updateData = { ...data };
+
+        if (data.isActive === false) {
+            const currentUser = await db.user.findUnique({
+                where: { id },
+                select: { isActive: true },
+            });
+
+            if (currentUser?.isActive) {
+                updateData.sessionVersion = { increment: 1 };
+            }
+        }
+
         await db.user.update({
             where: { id },
-            data: data,
+            data: updateData,
         });
     } catch (error) {
         throw error;
     }
 };
+
+export async function incrementSessionVersion(userId) {
+    try {
+        return await db.user.update({
+            where: { id: userId },
+            data: { sessionVersion: { increment: 1 } },
+        });
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function incrementAllSessionVersions() {
+    try {
+        return await db.user.updateMany({
+            data: { sessionVersion: { increment: 1 } },
+        });
+    } catch (error) {
+        throw error;
+    }
+}
 
 /**
  * Update a user's profile

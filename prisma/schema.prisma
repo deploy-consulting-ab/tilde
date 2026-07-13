@@ -71,6 +71,7 @@ model User {
     accounts        Account[]
     timereportCheckmarks TimereportCheckmark[]
     isActive        Boolean         @default(true)
+    sessionVersion  Int             @default(0)
     yearlyHolidays  Float           @default(30)
     carriedOverHolidays Float       @default(0)
 

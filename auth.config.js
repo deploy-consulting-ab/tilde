@@ -3,6 +3,7 @@ import { encode as defaultEncode } from '@auth/core/jwt';
 import {
     getSessionMaxAge,
     PWA_SESSION_MAX_AGE,
+    SESSION_REVOKED_ERROR,
     SESSION_UPDATE_AGE,
 } from '@/lib/auth-session';
 
@@ -49,6 +50,10 @@ const authConfig = {
         async session({ session, token }) {
             if (!session.user) {
                 return session;
+            }
+
+            if (token.error === SESSION_REVOKED_ERROR) {
+                return null;
             }
 
             if (token.sub) {
