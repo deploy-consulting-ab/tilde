@@ -7,6 +7,7 @@ import Script from 'next/script';
 import { AppSessionShell } from '@/components/auth/app-session-shell';
 import LoadingLogo from '@/components/application/loading-logo/loading-logo';
 import { BootSplash } from '@/components/application/loading-logo/boot-splash';
+import { APPLE_STARTUP_IMAGES } from '@/lib/pwa-splash';
 
 const nunitoSans = Nunito_Sans({ subsets: ['latin'] });
 
@@ -18,6 +19,12 @@ export const metadata = {
         capable: true,
         statusBarStyle: 'default',
         title: 'Tilde',
+        startupImage: APPLE_STARTUP_IMAGES,
+    },
+    // Next.js 15 maps appleWebApp.capable to mobile-web-app-capable only;
+    // iOS still needs the apple- prefixed tag for startup images to show.
+    other: {
+        'apple-mobile-web-app-capable': 'yes',
     },
     formatDetection: {
         telephone: false,
@@ -37,7 +44,7 @@ export const metadata = {
                 type: 'image/png',
             },
         ],
-        apple: '/images/tilde-black.png',
+        apple: '/splash/pwa-icon-192.png',
     },
 };
 
@@ -55,7 +62,6 @@ export default function RootLayout({ children }) {
                 )}
             </head>
             <body className={`${nunitoSans.className} antialiased h-full`} suppressHydrationWarning>
-                {/* Static HTML splash — paints before auth/React on PWA cold start */}
                 <BootSplash />
                 <Suspense fallback={<LoadingLogo />}>
                     <AppSessionShell>{children}</AppSessionShell>

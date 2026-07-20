@@ -5,25 +5,25 @@
     "start_url": "/home",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#000000",
+    "theme_color": "#ffffff",
     "icons": [
         {
-            "src": "/images/tilde-black.png",
-            "sizes": "64x64",
+            "src": "/splash/pwa-icon-192.png",
+            "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/images/tilde-black.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "/images/tilde-black.png",
+            "src": "/splash/pwa-icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "/splash/pwa-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
     ]
 }
