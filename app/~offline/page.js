@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 
 export default function OfflinePage() {
@@ -12,9 +14,7 @@ export default function OfflinePage() {
                 </div>
                 <Button
                     onClick={() => {
-                        if (typeof window !== 'undefined') {
-                            window.location.reload();
-                        }
+                        window.location.reload();
                     }}
                     size="lg"
                     className="hover:cursor-pointer"
