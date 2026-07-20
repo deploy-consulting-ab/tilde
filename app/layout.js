@@ -6,6 +6,7 @@ import { Toaster } from 'sonner';
 import Script from 'next/script';
 import { AppSessionShell } from '@/components/auth/app-session-shell';
 import LoadingLogo from '@/components/application/loading-logo/loading-logo';
+import { BootSplash } from '@/components/application/loading-logo/boot-splash';
 
 const nunitoSans = Nunito_Sans({ subsets: ['latin'] });
 
@@ -54,6 +55,8 @@ export default function RootLayout({ children }) {
                 )}
             </head>
             <body className={`${nunitoSans.className} antialiased h-full`} suppressHydrationWarning>
+                {/* Static HTML splash — paints before auth/React on PWA cold start */}
+                <BootSplash />
                 <Suspense fallback={<LoadingLogo />}>
                     <AppSessionShell>{children}</AppSessionShell>
                 </Suspense>
