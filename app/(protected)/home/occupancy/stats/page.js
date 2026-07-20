@@ -37,13 +37,17 @@ export default async function OccupancyStatsPage() {
         if (statsResult.status === 'fulfilled') {
             stats = statsResult.value;
         } else {
-            statsError = statsResult.reason;
+            statsError =
+                statsResult.reason?.message || statsResult.reason || 'Failed to load occupancy stats';
         }
 
         if (historyResult.status === 'fulfilled') {
             occupancyData = historyResult.value;
         } else {
-            historyError = historyResult.reason;
+            historyError =
+                historyResult.reason?.message ||
+                historyResult.reason ||
+                'Failed to load occupancy history';
         }
     }
 

@@ -927,10 +927,10 @@ async function getTimereportsForOccupancyFull(flexEmployeeId, startDate = null, 
         const week = weekMap.get(mondayDate);
 
         for (const row of timereport.TimeRows) {
-            if (row.TimeCode.Id !== WORKING_TYPE_ID) continue;
+            if (row.TimeCode?.Id !== WORKING_TYPE_ID) continue;
 
-            const projectAccount = row.Accounts.find(
-                (account) => account.AccountDistribution.Id === PROJECT_TYPE_ID
+            const projectAccount = row.Accounts?.find(
+                (account) => account.AccountDistribution?.Id === PROJECT_TYPE_ID
             );
             if (!projectAccount) continue;
 

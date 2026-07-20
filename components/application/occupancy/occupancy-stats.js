@@ -7,6 +7,10 @@ export async function OccupancyStatsComponent({ stats, error }) {
         return <ErrorDisplayComponent error={error} />;
     }
 
+    if (!stats) {
+        return null;
+    }
+
     const currentFY = getCurrentFiscalYear();
     const previousFY = getPreviousFiscalYear();
 

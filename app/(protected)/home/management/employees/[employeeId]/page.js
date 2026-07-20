@@ -70,13 +70,19 @@ export default async function EmployeePage({ params }) {
         if (statsResult.status === 'fulfilled') {
             stats = statsResult.value;
         } else {
-            errors.stats = statsResult.reason;
+            errors.stats =
+                statsResult.reason?.message ||
+                statsResult.reason ||
+                'Failed to load occupancy stats';
         }
 
         if (historyResult.status === 'fulfilled') {
             occupancyData = historyResult.value;
         } else {
-            errors.history = historyResult.reason;
+            errors.history =
+                historyResult.reason?.message ||
+                historyResult.reason ||
+                'Failed to load occupancy history';
         }
     }
 

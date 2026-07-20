@@ -1,3 +1,9 @@
+/* Default fill before theme class is applied (avoids invisible logo on white PWA splash) */
+.depl-1,
+.depl-2 {
+    fill: #000000;
+}
+
 /* Light variant */
 .light .depl-1,
 .light .depl-2 {

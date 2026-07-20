@@ -8,8 +8,11 @@ export function ErrorDisplayComponent({ error }) {
     let icon = AlertCircle;
     let variant = 'error'; // error, warning, info
 
-    // Handle different error types
-    if (error instanceof Error) {
+    // Handle string errors from server components (Errors are not RSC-serializable)
+    if (typeof error === 'string') {
+        title = 'Error';
+        message = error;
+    } else if (error instanceof Error) {
         switch (error.name) {
             case 'Error':
                 title = 'Error';
