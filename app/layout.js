@@ -1,12 +1,11 @@
+import { Suspense } from 'react';
 import { Nunito_Sans } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from '@/components/auth/form/theme-provider';
 import { Analytics } from '@vercel/analytics/next';
-import { auth } from '@/auth';
-import { SessionProvider } from 'next-auth/react';
-import { ClientTypeSync } from '@/components/auth/client-type-sync';
 import { Toaster } from 'sonner';
 import Script from 'next/script';
+import { AppSessionShell } from '@/components/auth/app-session-shell';
+import LoadingLogo from '@/components/application/loading-logo/loading-logo';
 
 const nunitoSans = Nunito_Sans({ subsets: ['latin'] });
 
@@ -41,8 +40,7 @@ export const metadata = {
     },
 };
 
-export default async function RootLayout({ children }) {
-    const session = await auth();
+export default function RootLayout({ children }) {
     return (
         <html lang="en" suppressHydrationWarning className="h-full">
             <head>
@@ -56,17 +54,9 @@ export default async function RootLayout({ children }) {
                 )}
             </head>
             <body className={`${nunitoSans.className} antialiased h-full`} suppressHydrationWarning>
-                <SessionProvider session={session}>
-                    <ClientTypeSync />
-                    <ThemeProvider
-                        attribute="class"
-                        defaultTheme="system"
-                        enableSystem
-                        disableTransitionOnChange
-                    >
-                        <div className="h-full bg-background">{children}</div>
-                    </ThemeProvider>
-                </SessionProvider>
+                <Suspense fallback={<LoadingLogo />}>
+                    <AppSessionShell>{children}</AppSessionShell>
+                </Suspense>
                 <Analytics />
                 <Toaster />
             </body>
