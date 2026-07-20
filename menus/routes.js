@@ -11,6 +11,7 @@ import {
 } from '@/lib/rba-constants';
 
 export const LOGIN_ROUTE = '/auth/login';
+export const CLEAR_SESSION_ROUTE = '/api/auth/clear-session';
 export const HOME_ROUTE = '/home';
 /**
  * Routes accessible to the public do not requiere authentication

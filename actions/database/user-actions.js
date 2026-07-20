@@ -15,11 +15,14 @@ import {
     addPermissionSetToUser,
     removePermissionSetFromUser,
     getUserByEmployeeNumber,
+    incrementSessionVersion,
+    incrementAllSessionVersions,
 } from '@/data/user-db';
 import { getUsers } from '@/data/user-db';
 import { updateUser } from '@/data/user-db';
 import { UpdateUserSchema } from '@/schemas';
-import { sub } from 'date-fns';
+import { toPermissionSet } from '@/lib/utils';
+import { VIEW_SETUP_PERMISSION } from '@/lib/rba-constants';
 
 /**
  * Get all users
@@ -243,4 +246,37 @@ export async function removePermissionSetFromUserAction(id, permissionSetId) {
     } catch (error) {
         throw error;
     }
+}
+
+async function requireSetupPermission() {
+    const session = await requireAuth();
+    const systemPermissions = toPermissionSet(session.user.systemPermissions);
+
+    if (!systemPermissions.has(VIEW_SETUP_PERMISSION)) {
+        throw new Error('Unauthorized access');
+    }
+
+    return session;
+}
+
+/**
+ * Revoke all active sessions for a user by bumping their session version.
+ * @param {string} userId
+ */
+export async function revokeUserSessionsAction(userId) {
+    await requireSetupPermission();
+
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    await incrementSessionVersion(userId);
+}
+
+/**
+ * Revoke all active sessions for every user.
+ */
+export async function revokeAllUserSessionsAction() {
+    await requireSetupPermission();
+    await incrementAllSessionVersions();
 }

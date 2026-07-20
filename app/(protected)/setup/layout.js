@@ -1,10 +1,10 @@
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebarComponent } from '@/components/application/sidebar/app-sidebar';
-import { auth } from '@/auth';
 import { AppHeaderComponent } from '@/components/application/app-header';
+import { requireAuth } from '@/lib/require-auth';
 
 export default async function HomeLayout({ children }) {
-    const session = await auth();
+    const session = await requireAuth();
     const { user } = session;
     return (
         <SidebarProvider

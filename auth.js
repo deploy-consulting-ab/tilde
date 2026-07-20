@@ -8,7 +8,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { db } from '@/lib/db';
 import { getUserById, getUserByEmail, getCombinedPermissionsForUser } from '@/data/user-db';
 import { LoginSchema } from '@/schemas';
-import { CLIENT_TYPE, CLIENT_TYPE_COOKIE, resolveClientType } from '@/lib/auth-session';
+import { CLIENT_TYPE, CLIENT_TYPE_COOKIE, resolveClientType, SESSION_REVOKED_ERROR, createRevokedSessionToken, isSessionVersionValid } from '@/lib/auth-session';
 
 /**
  * Custom error class for credentials sign in
@@ -92,6 +92,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async session({ session, token }) {
             if (!session.user) {
                 return session;
+            }
+
+            if (token.error === SESSION_REVOKED_ERROR) {
+                return null;
             }
 
             if (token.sub) {
@@ -193,9 +197,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.profileId = user.profileId;
                 token.homeLayoutKey = user.homeLayoutKey;
                 token.isActive = user.isActive;
+                token.sessionVersion = user.sessionVersion ?? 0;
                 token.yearlyHolidays = user.yearlyHolidays;
                 token.carriedOverHolidays = user.carriedOverHolidays;
+            } else if (token.sub && token.error !== SESSION_REVOKED_ERROR) {
+                const dbUser = await getUserById(token.sub);
+
+                if (!isSessionVersionValid(dbUser, token)) {
+                    return createRevokedSessionToken(token.sub);
+                }
+
+                token.isActive = dbUser.isActive;
             }
+
             return token;
         },
     },

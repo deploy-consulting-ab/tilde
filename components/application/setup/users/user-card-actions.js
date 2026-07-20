@@ -11,7 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { deleteUserAction, updateUserAction } from '@/actions/database/user-actions';
+import { deleteUserAction, revokeUserSessionsAction, updateUserAction } from '@/actions/database/user-actions';
 import { toastRichSuccess, toastRichError } from '@/lib/toast-library';
 import { useRouter } from 'next/navigation';
 import { UserEditForm } from '@/components/application/setup/users/user-edit-form';
@@ -21,7 +21,9 @@ import { useImpersonation } from '@/hooks/use-impersonation';
 export function UserCardActionsComponent({ user }) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showRevokeDialog, setShowRevokeDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isRevoking, setIsRevoking] = useState(false);
     const router = useRouter();
     const { startImpersonation } = useImpersonation();
 
@@ -69,6 +71,23 @@ export function UserCardActionsComponent({ user }) {
         }
     };
 
+    const revokeSessions = async (id) => {
+        try {
+            setIsRevoking(true);
+            await revokeUserSessionsAction(id);
+            toastRichSuccess({
+                message: 'All sessions revoked for this user.',
+            });
+            setShowRevokeDialog(false);
+        } catch (error) {
+            toastRichError({
+                message: error.message,
+            });
+        } finally {
+            setIsRevoking(false);
+        }
+    };
+
     return (
         <div className="flex gap-2">
             <Button
@@ -90,6 +109,16 @@ export function UserCardActionsComponent({ user }) {
                     View As
                 </Button>
             )}
+
+            <Button
+                variant="outline"
+                onClick={() => setShowRevokeDialog(true)}
+                key="revoke-sessions"
+                className="hover:cursor-pointer"
+            >
+                Revoke Sessions
+            </Button>
+
             <Button
                 variant="destructive"
                 onClick={() => setShowDeleteDialog(true)}
@@ -143,6 +172,42 @@ export function UserCardActionsComponent({ user }) {
                                 </div>
                             ) : (
                                 'Delete'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={showRevokeDialog} onOpenChange={setShowRevokeDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Revoke Sessions</DialogTitle>
+                        <DialogDescription>
+                            This will sign {user.name} out of all devices on their next request.
+                            They will need to sign in again.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowRevokeDialog(false)}
+                            className="hover:cursor-pointer"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={() => revokeSessions(user.id)}
+                            disabled={isRevoking}
+                            className="hover:cursor-pointer"
+                        >
+                            {isRevoking ? (
+                                <div className="flex items-center gap-2">
+                                    <Spinner size="sm" variant="white" />
+                                    <span>Revoking...</span>
+                                </div>
+                            ) : (
+                                'Revoke Sessions'
                             )}
                         </Button>
                     </DialogFooter>
