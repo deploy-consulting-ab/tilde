@@ -41,16 +41,6 @@ export function AssignmentRecordCardComponent({
         currencyIsoCode,
     } = assignment;
 
-    console.log('actualProfitabilityPercentage!!::', actualProfitabilityPercentage);
-    console.log('actualProfitability!!::', actualProfitability);
-    console.log('actualCost!!::', actualCost);
-    console.log('actualAmount!!::', actualAmount);
-    console.log('currencyIsoCode!!::', currencyIsoCode);
-    console.log('projectedHours!!::', projectedHours);
-    console.log('actualHours!!::', actualHours);
-    console.log('timecardsRoute!!::', timecardsRoute);
-    console.log('assignment!!::', assignment);
-
     return (
         <>
             <Card className="w-full transition-all hover:shadow-md border-l-4 border-l-deploy-blue">
