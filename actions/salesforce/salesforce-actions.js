@@ -330,15 +330,30 @@ export async function getEmployees() {
     }
 }
 
+/**
+ * Return employee numbers that have an active external assignment on the given date.
+ *
+ * Does not call requireAuth(): this is invoked by the slack-timereport-reminder
+ * cron (/api/cron/slack-timereport-reminder), which has no user session. That
+ * route authenticates with CRON_SECRET instead.
+ *
+ * @param {string[]} employeeNumbers
+ * @param {string} date  ISO date string, e.g. "2026-07-26"
+ * @returns {Promise<Set<string>>} Set of EmployeeId__c values
+ */
 export async function getEmployeesWithActiveAssignments(employeeNumbers, date) {
-    await requireAuth();
     try {
+        if (!employeeNumbers?.length) {
+            return new Set();
+        }
+
         const employeeNumbersString = employeeNumbers.map((num) => `'${num}'`).join(', ');
         const result = await queryData(
             getEmployeesWithActiveAssignmentsQuery(employeeNumbersString, date)
         );
         return new Set(result.map((employee) => employee.EmployeeId__c));
     } catch (error) {
+        console.log('error getting employees with active assignments', error);
         throw error;
     }
 }

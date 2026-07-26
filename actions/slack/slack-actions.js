@@ -57,6 +57,10 @@ export async function sendSlackAbsence(message) {
  * Send a direct message reminder to a user who has not yet submitted their
  * timereport for a given week. Uses the Slack Web API (Bot Token).
  *
+ * Does not call requireAuth(): this is invoked by the slack-timereport-reminder
+ * cron (/api/cron/slack-timereport-reminder), which has no user session. That
+ * route authenticates with CRON_SECRET instead.
+ *
  * Flow:
  *   1. Resolve the user's Slack ID from their email via users.lookupByEmail
  *   2. Open (or reuse) their DM channel via conversations.open
@@ -68,7 +72,6 @@ export async function sendSlackAbsence(message) {
  * @throws {Error} If the user is not found in Slack or any API call fails
  */
 export async function sendSlackTimereportReminder(email, weekStartDate, weekEndDate) {
-    await requireAuth();
     try {
         const service = await getSlackWebApiService();
         const slackUserId = await service.lookupUserByEmail(email);
