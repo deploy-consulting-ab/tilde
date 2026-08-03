@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ErrorDisplayComponent } from '@/components/errors/error-display';
 import { EmployeeFinancialMetrics } from '@/components/application/management/employees/employee-financial-metrics';
 import {
+    BreakEvenBadge,
     EMPLOYEE_FINANCIAL_TOOLTIPS,
     ProfitBadge,
 } from '@/components/application/management/employees/employee-financial-metric-ui';
@@ -27,6 +28,7 @@ export async function EmployeeFinancialCardComponent({ employee, fyAmounts, erro
             : null;
 
     const isProfitableFYTD = profitabilityFYTD != null && profitabilityFYTD >= 0;
+    const hasBreakEvenFY = profitabilityFY != null && profitabilityFY > 0;
 
     return (
         <Card
@@ -36,7 +38,14 @@ export async function EmployeeFinancialCardComponent({ employee, fyAmounts, erro
         >
             <CardHeader className="pb-2 pt-4 px-4">
                 <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base">Financial Overview</CardTitle>
+                    <div className="flex flex-col gap-1 min-w-0">
+                        <CardTitle className="text-base">Financial Overview</CardTitle>
+                        {hasBreakEvenFY && (
+                            <BreakEvenBadge
+                                description={EMPLOYEE_FINANCIAL_TOOLTIPS.profitabilityFY}
+                            />
+                        )}
+                    </div>
                     <ProfitBadge
                         value={profitabilityFYTD}
                         description={EMPLOYEE_FINANCIAL_TOOLTIPS.profitabilityFYTD}

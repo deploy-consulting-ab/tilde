@@ -16,6 +16,7 @@ import { getEmployeeProfitabilityData } from '@/actions/salesforce/salesforce-ac
 import { EMPLOYEES_LIST_ROUTE } from '@/menus/routes';
 import { EmployeeFinancialMetrics } from '@/components/application/management/employees/employee-financial-metrics';
 import {
+    BreakEvenBadge,
     CURRENCY_VALUE_PROMINENT_CLASS,
     EMPLOYEE_FINANCIAL_TOOLTIPS,
     InfoTooltip,
@@ -244,6 +245,7 @@ function EmployeeCard({ employee }) {
     const profitFYTD = totalInvoiced - adjustedCostFYTD;
 
     const isProfitableFYTD = profitFYTD >= 0;
+    const hasBreakEvenFY = profitFY > 0;
 
     return (
         <Card
@@ -253,16 +255,21 @@ function EmployeeCard({ employee }) {
         >
             <CardHeader className="pb-2 pt-4 px-4">
                 <div className="flex items-start justify-between gap-2">
-                    {id ? (
-                        <Link
-                            href={`${EMPLOYEES_LIST_ROUTE}/${id}`}
-                            className="font-semibold text-base leading-snug dark:text-deploy-ocean text-deploy-blue hover:underline transition-colors"
-                        >
-                            {employeeName}
-                        </Link>
-                    ) : (
-                        <h3 className="font-semibold text-base leading-snug">{employeeName}</h3>
-                    )}
+                    <div className="flex flex-col gap-1 min-w-0">
+                        {id ? (
+                            <Link
+                                href={`${EMPLOYEES_LIST_ROUTE}/${id}`}
+                                className="font-semibold text-base leading-snug dark:text-deploy-ocean text-deploy-blue hover:underline transition-colors"
+                            >
+                                {employeeName}
+                            </Link>
+                        ) : (
+                            <h3 className="font-semibold text-base leading-snug">{employeeName}</h3>
+                        )}
+                        {hasBreakEvenFY && (
+                            <BreakEvenBadge description={METRIC_TOOLTIPS.profitabilityFY} />
+                        )}
+                    </div>
                     <ProfitBadge
                         value={profitFYTD}
                         description={METRIC_TOOLTIPS.profitabilityFYTD}
