@@ -41,9 +41,7 @@ export async function EmployeeFinancialCardComponent({ employee, fyAmounts, erro
                     <div className="flex flex-col gap-1 min-w-0">
                         <CardTitle className="text-base">Financial Overview</CardTitle>
                         {hasBreakEvenFY && (
-                            <BreakEvenBadge
-                                description={EMPLOYEE_FINANCIAL_TOOLTIPS.profitabilityFY}
-                            />
+                            <BreakEvenBadge description={EMPLOYEE_FINANCIAL_TOOLTIPS.breakEvenFY} />
                         )}
                     </div>
                     <ProfitBadge

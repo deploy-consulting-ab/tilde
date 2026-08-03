@@ -34,6 +34,7 @@ const METRIC_TOOLTIPS = {
     unprofitable: 'Employees whose invoiced amount is below adjusted cost FYTD.',
     totalProfitFYTD: 'Sum of invoiced amount minus adjusted cost FYTD across all employees.',
     project: 'External assignment project name for the current fiscal year.',
+    breakEvenFY: 'Invoiced Amount minus Adjusted Cost FY for the full fiscal year.',
 };
 
 const PROJECT_COLUMNS = [
@@ -267,7 +268,7 @@ function EmployeeCard({ employee }) {
                             <h3 className="font-semibold text-base leading-snug">{employeeName}</h3>
                         )}
                         {hasBreakEvenFY && (
-                            <BreakEvenBadge description={METRIC_TOOLTIPS.profitabilityFY} />
+                            <BreakEvenBadge description={METRIC_TOOLTIPS.breakEvenFY} />
                         )}
                     </div>
                     <ProfitBadge
