@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { buildQuarterComparisonSeries } from '@/lib/utils';
 import { NoDataComponent } from '@/components/errors/no-data';
-import { QUARTER_LABELS } from './financials-constants';
+import { QUARTER_LABELS, formatFinancialPeriodLabel } from './financials-constants';
 
 const FinancialsBarChartCanvas = dynamic(
     () =>
@@ -145,6 +145,67 @@ export function FinancialsQuarterComparisonChartComponent({
                     <div ref={ref} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
                         <FinancialsQuarterComparisonChartCanvas
                             data={series}
+                            compact={compact}
+                            chartConfig={CHART_CONFIG}
+                        />
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+/**
+ * Bar chart: side-by-side comparison of two arbitrary fiscal-year/quarter periods.
+ */
+export function FinancialsCustomPeriodComparisonChartComponent({
+    records,
+    basePeriod,
+    comparePeriod,
+    compact = false,
+}) {
+    const baseRecord = records.find(
+        (r) => r.fiscalYear === basePeriod.fiscalYear && r.quarter === basePeriod.quarter
+    );
+    const compareRecord = records.find(
+        (r) => r.fiscalYear === comparePeriod.fiscalYear && r.quarter === comparePeriod.quarter
+    );
+
+    const baseLabel = formatFinancialPeriodLabel(basePeriod.fiscalYear, basePeriod.quarter);
+    const compareLabel = formatFinancialPeriodLabel(comparePeriod.fiscalYear, comparePeriod.quarter);
+
+    const chartData = [baseRecord, compareRecord]
+        .filter(Boolean)
+        .map((record) => ({
+            quarter:
+                record.fiscalYear === basePeriod.fiscalYear && record.quarter === basePeriod.quarter
+                    ? baseLabel
+                    : compareLabel,
+            revenue: record.revenue,
+            cost: record.cost,
+            profit: record.profit,
+            taxes: record.taxes,
+        }));
+
+    const { ref, handleTouchMove, handleTouchEnd } = useTouchToMouseEvents();
+
+    return (
+        <Card variant="shadow">
+            <CardHeader>
+                <CardTitle>Period Comparison</CardTitle>
+                <CardDescription>
+                    {baseLabel} vs {compareLabel}
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {chartData.length === 0 ? (
+                    <div className="flex items-center justify-center h-48">
+                        <NoDataComponent text="No records available for the selected periods" />
+                    </div>
+                ) : (
+                    <div ref={ref} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+                        <FinancialsBarChartCanvas
+                            data={chartData}
                             compact={compact}
                             chartConfig={CHART_CONFIG}
                         />

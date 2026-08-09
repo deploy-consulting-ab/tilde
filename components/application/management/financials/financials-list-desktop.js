@@ -30,8 +30,10 @@ import {
     FinancialsBarChartComponent,
     FinancialsLineChartComponent,
     FinancialsQuarterComparisonChartComponent,
+    FinancialsCustomPeriodComparisonChartComponent,
 } from '@/components/application/management/financials/financials-chart';
 import { FinancialMetricCell } from '@/components/application/management/financials/financial-yoy-badge';
+import { FinancialsPeriodCompareControls, FinancialsCompareQuartersButton } from '@/components/application/management/financials/financials-period-compare-controls';
 import { ErrorDisplayComponent } from '@/components/errors/error-display';
 import {
     getFinancialsAction,
@@ -46,6 +48,7 @@ import {
     buildComputedTotal,
     getFinancialFiscalYears,
     attachYearOverYearChanges,
+    buildCustomPeriodComparison,
 } from '@/lib/utils';
 import {
     QUARTER_LABELS,
@@ -68,9 +71,38 @@ export function FinancialsListDesktopComponent({
     const currentFY = getCurrentFiscalYear();
     const availableFYs = getFinancialFiscalYears(records);
     const defaultFY = availableFYs.length > 0 ? availableFYs[0] : currentFY;
+    const defaultBaseFY =
+        availableFYs.length > 0 ? availableFYs[availableFYs.length - 1] : currentFY;
 
     const [selectedFY, setSelectedFY] = useState(String(defaultFY));
     const [selectedQuarter, setSelectedQuarter] = useState('all');
+    const [compareBaseFY, setCompareBaseFY] = useState(String(defaultBaseFY));
+    const [compareBaseQuarter, setCompareBaseQuarter] = useState('1');
+    const [compareTargetFY, setCompareTargetFY] = useState(String(defaultFY));
+    const [compareTargetQuarter, setCompareTargetQuarter] = useState('4');
+    const [showCompareSetup, setShowCompareSetup] = useState(false);
+    const [isCompareActive, setIsCompareActive] = useState(false);
+    const [appliedCompareBase, setAppliedCompareBase] = useState(null);
+    const [appliedCompareTarget, setAppliedCompareTarget] = useState(null);
+
+    const handleLaunchCompare = () => {
+        setAppliedCompareBase({
+            fiscalYear: parseInt(compareBaseFY, 10),
+            quarter: parseInt(compareBaseQuarter, 10),
+        });
+        setAppliedCompareTarget({
+            fiscalYear: parseInt(compareTargetFY, 10),
+            quarter: parseInt(compareTargetQuarter, 10),
+        });
+        setIsCompareActive(true);
+    };
+
+    const handleCancelCompare = () => {
+        setShowCompareSetup(false);
+        setIsCompareActive(false);
+        setAppliedCompareBase(null);
+        setAppliedCompareTarget(null);
+    };
 
     const handleRefresh = async () => {
         if (isRefreshing) return;
@@ -124,6 +156,14 @@ export function FinancialsListDesktopComponent({
     } = getQuarterComparisonConfig(selectedQuarter);
 
     const filteredRecords = (() => {
+        if (isCompareActive && appliedCompareBase && appliedCompareTarget) {
+            return buildCustomPeriodComparison(
+                records,
+                appliedCompareBase,
+                appliedCompareTarget
+            );
+        }
+
         if (isQuarterComparison) {
             return attachYearOverYearChanges(records, comparisonQuarters);
         }
@@ -154,7 +194,7 @@ export function FinancialsListDesktopComponent({
 
     const renderMetricCell = (row, key, invertColors = false) => {
         const value = row.getValue(key);
-        if (isQuarterComparison && row.original._yoy) {
+        if (isCompareActive && row.original._yoy) {
             return (
                 <FinancialMetricCell
                     value={value}
@@ -323,7 +363,7 @@ export function FinancialsListDesktopComponent({
                   },
               ]
             : []),
-    ].filter((col) => !(isQuarterComparison && col.accessorKey === 'quarter'));
+    ].filter((col) => !(isQuarterComparison && !isCompareActive && col.accessorKey === 'quarter'));
 
     const fyOptions = (() => {
         const all = [...availableFYs];
@@ -331,7 +371,24 @@ export function FinancialsListDesktopComponent({
         return all;
     })();
 
-    const fyFilterView = (
+    const compareView = showCompareSetup ? (
+        <FinancialsPeriodCompareControls
+            key="compare-controls"
+            fyOptions={fyOptions}
+            baseFY={compareBaseFY}
+            baseQuarter={compareBaseQuarter}
+            compareFY={compareTargetFY}
+            compareQuarter={compareTargetQuarter}
+            onBaseFYChange={setCompareBaseFY}
+            onBaseQuarterChange={setCompareBaseQuarter}
+            onCompareFYChange={setCompareTargetFY}
+            onCompareQuarterChange={setCompareTargetQuarter}
+            onLaunchCompare={handleLaunchCompare}
+            onCancel={handleCancelCompare}
+        />
+    ) : null;
+
+    const fyFilterView = !showCompareSetup ? (
         <Select value={selectedFY} onValueChange={setSelectedFY} key="fy-filter">
             <SelectTrigger className="w-[160px] hover:cursor-pointer">
                 <SelectValue placeholder="Fiscal Year" />
@@ -344,9 +401,9 @@ export function FinancialsListDesktopComponent({
                 ))}
             </SelectContent>
         </Select>
-    );
+    ) : null;
 
-    const quarterFilterView = (
+    const quarterFilterView = !showCompareSetup ? (
         <Select value={selectedQuarter} onValueChange={setSelectedQuarter} key="quarter-filter">
             <SelectTrigger className="w-[240px] hover:cursor-pointer">
                 <SelectValue placeholder="Quarter" />
@@ -359,6 +416,16 @@ export function FinancialsListDesktopComponent({
                 ))}
             </SelectContent>
         </Select>
+    ) : null;
+
+    const compareAction = (
+        <FinancialsCompareQuartersButton
+            key="compare-quarters"
+            isActive={showCompareSetup}
+            onClick={() =>
+                showCompareSetup ? handleCancelCompare() : setShowCompareSetup(true)
+            }
+        />
     );
 
     const createAction = canManage ? (
@@ -402,8 +469,8 @@ export function FinancialsListDesktopComponent({
         return <ErrorDisplayComponent error={error} />;
     }
 
-    const views = [fyFilterView, quarterFilterView];
-    const actions = [createAction, refreshAction].filter(Boolean);
+    const views = [compareView, fyFilterView, quarterFilterView].filter(Boolean);
+    const actions = [compareAction, createAction, refreshAction].filter(Boolean);
 
     return (
         <div className="space-y-6">
@@ -423,8 +490,21 @@ export function FinancialsListDesktopComponent({
             />
 
             <div className="grid grid-cols-2 gap-6">
-                <FinancialsBarChartComponent records={records} fiscalYear={fyNum} />
-                {isQuarterComparison ? (
+                <FinancialsBarChartComponent
+                    records={records}
+                    fiscalYear={
+                        isCompareActive && appliedCompareTarget
+                            ? appliedCompareTarget.fiscalYear
+                            : fyNum
+                    }
+                />
+                {isCompareActive && appliedCompareBase && appliedCompareTarget ? (
+                    <FinancialsCustomPeriodComparisonChartComponent
+                        records={records}
+                        basePeriod={appliedCompareBase}
+                        comparePeriod={appliedCompareTarget}
+                    />
+                ) : isQuarterComparison ? (
                     <FinancialsQuarterComparisonChartComponent
                         records={records}
                         quarters={comparisonQuarters}
