@@ -191,79 +191,70 @@ export function FinancialsListPhoneComponent({
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center gap-2">
-                {showCompareSetup ? (
-                    <div className="min-w-0 flex-1 overflow-x-auto">
-                        <FinancialsPeriodCompareControls
-                            fyOptions={fyOptions}
-                            baseFY={compareBaseFY}
-                            baseQuarter={compareBaseQuarter}
-                            compareFY={compareTargetFY}
-                            compareQuarter={compareTargetQuarter}
-                            onBaseFYChange={setCompareBaseFY}
-                            onBaseQuarterChange={setCompareBaseQuarter}
-                            onCompareFYChange={setCompareTargetFY}
-                            onCompareQuarterChange={setCompareTargetQuarter}
-                            onLaunchCompare={handleLaunchCompare}
-                            onCancel={handleCancelCompare}
-                        />
-                    </div>
-                ) : (
-                    <>
-                        <Select value={selectedFY} onValueChange={setSelectedFY}>
-                            <SelectTrigger className="flex-1 hover:cursor-pointer">
-                                <SelectValue placeholder="Fiscal Year" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {fyOptions.map((fy) => (
-                                    <SelectItem key={fy} value={String(fy)}>
-                                        FY{String(fy).slice(-2)}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+            {showCompareSetup ? (
+                <FinancialsPeriodCompareControls
+                    fyOptions={fyOptions}
+                    baseFY={compareBaseFY}
+                    baseQuarter={compareBaseQuarter}
+                    compareFY={compareTargetFY}
+                    compareQuarter={compareTargetQuarter}
+                    onBaseFYChange={setCompareBaseFY}
+                    onBaseQuarterChange={setCompareBaseQuarter}
+                    onCompareFYChange={setCompareTargetFY}
+                    onCompareQuarterChange={setCompareTargetQuarter}
+                    onLaunchCompare={handleLaunchCompare}
+                    onCancel={handleCancelCompare}
+                    stacked
+                />
+            ) : (
+                <div className="flex items-center gap-2">
+                    <Select value={selectedFY} onValueChange={setSelectedFY}>
+                        <SelectTrigger className="flex-1 hover:cursor-pointer">
+                            <SelectValue placeholder="Fiscal Year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {fyOptions.map((fy) => (
+                                <SelectItem key={fy} value={String(fy)}>
+                                    FY{String(fy).slice(-2)}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                        <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
-                            <SelectTrigger className="flex-1 hover:cursor-pointer">
-                                <SelectValue placeholder="Quarter" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {QUARTER_FILTER_OPTIONS.map((opt) => (
-                                    <SelectItem key={opt.value} value={opt.value}>
-                                        {opt.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </>
-                )}
+                    <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
+                        <SelectTrigger className="flex-1 hover:cursor-pointer">
+                            <SelectValue placeholder="Quarter" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {QUARTER_FILTER_OPTIONS.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                {!showCompareSetup && (
-                    <div className="flex shrink-0 items-center gap-2">
+                    <Button
+                        size="sm"
+                        variant="default"
+                        className="shrink-0 hover:cursor-pointer"
+                        onClick={() => setShowCompareSetup(true)}
+                    >
+                        <GitCompare className="h-4 w-4" />
+                        <span className="sr-only">Compare quarters</span>
+                    </Button>
+
+                    {canManage && (
                         <Button
                             size="sm"
-                            variant={showCompareSetup ? 'secondary' : 'default'}
-                            className="hover:cursor-pointer"
-                            onClick={() =>
-                                showCompareSetup ? handleCancelCompare() : setShowCompareSetup(true)
-                            }
+                            className="shrink-0 hover:cursor-pointer"
+                            onClick={() => setIsCreateDialogOpen(true)}
                         >
-                            <GitCompare className="h-4 w-4" />
-                            <span className="sr-only">Compare quarters</span>
+                            <PlusCircle className="h-4 w-4" />
                         </Button>
-
-                        {canManage && (
-                            <Button
-                                size="sm"
-                                className="hover:cursor-pointer"
-                                onClick={() => setIsCreateDialogOpen(true)}
-                            >
-                                <PlusCircle className="h-4 w-4" />
-                            </Button>
-                        )}
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
 
             <div className="space-y-3">
                 {filteredRecords.length === 0 && (

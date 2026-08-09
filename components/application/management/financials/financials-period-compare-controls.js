@@ -18,12 +18,19 @@ function PeriodSelectGroup({
     fyOptions,
     onFiscalYearChange,
     onQuarterChange,
+    fillWidth = false,
 }) {
     return (
-        <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{label}</span>
+        <div className={`flex items-center gap-2 ${fillWidth ? 'w-full' : 'shrink-0'}`}>
+            <span
+                className={`text-xs font-medium text-muted-foreground whitespace-nowrap ${fillWidth ? 'w-9 shrink-0' : ''}`}
+            >
+                {label}
+            </span>
             <Select value={fiscalYear} onValueChange={onFiscalYearChange}>
-                <SelectTrigger className="w-[88px] h-8 hover:cursor-pointer">
+                <SelectTrigger
+                    className={`h-8 hover:cursor-pointer ${fillWidth ? 'flex-1' : 'w-[88px]'}`}
+                >
                     <SelectValue placeholder="FY" />
                 </SelectTrigger>
                 <SelectContent>
@@ -35,7 +42,9 @@ function PeriodSelectGroup({
                 </SelectContent>
             </Select>
             <Select value={quarter} onValueChange={onQuarterChange}>
-                <SelectTrigger className="w-[72px] h-8 hover:cursor-pointer">
+                <SelectTrigger
+                    className={`h-8 hover:cursor-pointer ${fillWidth ? 'flex-1' : 'w-[72px]'}`}
+                >
                     <SelectValue placeholder="Q" />
                 </SelectTrigger>
                 <SelectContent>
@@ -62,7 +71,48 @@ export function FinancialsPeriodCompareControls({
     onCompareQuarterChange,
     onLaunchCompare,
     onCancel,
+    stacked = false,
 }) {
+    if (stacked) {
+        return (
+            <div className="space-y-2 w-full">
+                <PeriodSelectGroup
+                    label="From"
+                    fiscalYear={baseFY}
+                    quarter={baseQuarter}
+                    fyOptions={fyOptions}
+                    onFiscalYearChange={onBaseFYChange}
+                    onQuarterChange={onBaseQuarterChange}
+                    fillWidth
+                />
+                <PeriodSelectGroup
+                    label="To"
+                    fiscalYear={compareFY}
+                    quarter={compareQuarter}
+                    fyOptions={fyOptions}
+                    onFiscalYearChange={onCompareFYChange}
+                    onQuarterChange={onCompareQuarterChange}
+                    fillWidth
+                />
+                <div className="flex items-center gap-2 pt-1">
+                    <Button size="sm" className="flex-1 hover:cursor-pointer" onClick={onLaunchCompare}>
+                        Compare
+                    </Button>
+                    {onCancel && (
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="hover:cursor-pointer"
+                            onClick={onCancel}
+                        >
+                            Cancel
+                        </Button>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex items-center gap-2 flex-nowrap shrink-0">
             <PeriodSelectGroup
