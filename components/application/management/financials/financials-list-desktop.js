@@ -47,7 +47,11 @@ import {
     getFinancialFiscalYears,
     attachYearOverYearChanges,
 } from '@/lib/utils';
-import { QUARTER_LABELS, QUARTER_FILTER_OPTIONS } from './financials-constants';
+import {
+    QUARTER_LABELS,
+    QUARTER_FILTER_OPTIONS,
+    getQuarterComparisonConfig,
+} from '@/components/application/management/financials/financials-constants';
 
 export function FinancialsListDesktopComponent({
     records: initialRecords,
@@ -113,12 +117,15 @@ export function FinancialsListDesktopComponent({
     };
 
     const fyNum = parseInt(selectedFY, 10);
-    const isQuarterComparison = ['1', '2', '3', '4'].includes(selectedQuarter);
-    const comparisonQuarter = isQuarterComparison ? parseInt(selectedQuarter, 10) : null;
+    const {
+        isComparison: isQuarterComparison,
+        quarters: comparisonQuarters,
+        label: comparisonLabel,
+    } = getQuarterComparisonConfig(selectedQuarter);
 
     const filteredRecords = (() => {
         if (isQuarterComparison) {
-            return attachYearOverYearChanges(records, comparisonQuarter);
+            return attachYearOverYearChanges(records, comparisonQuarters);
         }
 
         let base = records.filter((r) => r.fiscalYear === fyNum);
@@ -287,7 +294,7 @@ export function FinancialsListDesktopComponent({
                       maxSize: 10,
                       cell: ({ row }) => {
                           const record = row.original;
-                          if (record._isComputed) return null;
+                          if (record._isComputed || record._isAggregated) return null;
                           return (
                               <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
@@ -341,7 +348,7 @@ export function FinancialsListDesktopComponent({
 
     const quarterFilterView = (
         <Select value={selectedQuarter} onValueChange={setSelectedQuarter} key="quarter-filter">
-            <SelectTrigger className="w-[150px] hover:cursor-pointer">
+            <SelectTrigger className="w-[240px] hover:cursor-pointer">
                 <SelectValue placeholder="Quarter" />
             </SelectTrigger>
             <SelectContent>
@@ -420,7 +427,8 @@ export function FinancialsListDesktopComponent({
                 {isQuarterComparison ? (
                     <FinancialsQuarterComparisonChartComponent
                         records={records}
-                        quarter={comparisonQuarter}
+                        quarters={comparisonQuarters}
+                        label={comparisonLabel}
                     />
                 ) : (
                     <FinancialsLineChartComponent records={records} />

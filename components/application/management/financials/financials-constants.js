@@ -6,6 +6,11 @@ export const QUARTER_LABELS = {
     4: 'Q4',
 };
 
+export const AGGREGATED_QUARTER_PRESETS = {
+    h1: { label: 'Q1 + Q2', quarters: [1, 2] },
+    '9m': { label: 'Q1 + Q2 + Q3', quarters: [1, 2, 3] },
+};
+
 export const QUARTER_FILTER_OPTIONS = [
     { value: 'all', label: 'All Quarters' },
     { value: '0', label: 'Total Year' },
@@ -13,4 +18,33 @@ export const QUARTER_FILTER_OPTIONS = [
     { value: '2', label: 'Q2' },
     { value: '3', label: 'Q3' },
     { value: '4', label: 'Q4' },
+    { value: 'h1', label: AGGREGATED_QUARTER_PRESETS.h1.label },
+    { value: '9m', label: AGGREGATED_QUARTER_PRESETS['9m'].label },
 ];
+
+/**
+ * Resolve quarter filter selection into comparison mode config.
+ * @param {string} selectedQuarter
+ * @returns {{ isComparison: boolean, quarters: number[]|null, label: string|null }}
+ */
+export function getQuarterComparisonConfig(selectedQuarter) {
+    if (['1', '2', '3', '4'].includes(selectedQuarter)) {
+        const quarter = parseInt(selectedQuarter, 10);
+        return {
+            isComparison: true,
+            quarters: [quarter],
+            label: QUARTER_LABELS[quarter],
+        };
+    }
+
+    const preset = AGGREGATED_QUARTER_PRESETS[selectedQuarter];
+    if (preset) {
+        return {
+            isComparison: true,
+            quarters: preset.quarters,
+            label: preset.label,
+        };
+    }
+
+    return { isComparison: false, quarters: null, label: null };
+}

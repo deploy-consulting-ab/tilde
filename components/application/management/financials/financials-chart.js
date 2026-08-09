@@ -106,11 +106,19 @@ export function FinancialsBarChartComponent({ records, fiscalYear, compact = fal
 }
 
 /**
- * Line chart: Revenue / Cost / Profit / Taxes for one quarter across fiscal years.
+ * Line chart: Revenue / Cost / Profit / Taxes for one quarter or aggregated quarters across fiscal years.
  */
-export function FinancialsQuarterComparisonChartComponent({ records, quarter, compact = false }) {
-    const quarterLabel = QUARTER_LABELS[quarter] ?? `Q${quarter}`;
-    const series = buildQuarterComparisonSeries(records, quarter).map((r) => ({
+export function FinancialsQuarterComparisonChartComponent({
+    records,
+    quarters,
+    label,
+    compact = false,
+}) {
+    const quarterList = Array.isArray(quarters) ? quarters : [quarters];
+    const quarterLabel =
+        label ??
+        (quarterList.length === 1 ? (QUARTER_LABELS[quarterList[0]] ?? `Q${quarterList[0]}`) : null);
+    const series = buildQuarterComparisonSeries(records, quarterList).map((r) => ({
         fy: r.fyLabel,
         revenue: r.revenue,
         cost: r.cost,

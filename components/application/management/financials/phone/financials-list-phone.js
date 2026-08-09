@@ -37,7 +37,7 @@ import {
     getFinancialFiscalYears,
     attachYearOverYearChanges,
 } from '@/lib/utils';
-import { QUARTER_FILTER_OPTIONS } from '../financials-constants';
+import { QUARTER_FILTER_OPTIONS, getQuarterComparisonConfig } from '../financials-constants';
 import { FinancialCardPhoneComponent } from './financial-card-phone';
 
 export function FinancialsListPhoneComponent({
@@ -104,12 +104,12 @@ export function FinancialsListPhoneComponent({
     };
 
     const fyNum = parseInt(selectedFY, 10);
-    const isQuarterComparison = ['1', '2', '3', '4'].includes(selectedQuarter);
-    const comparisonQuarter = isQuarterComparison ? parseInt(selectedQuarter, 10) : null;
+    const { isComparison: isQuarterComparison, quarters: comparisonQuarters, label: comparisonLabel } =
+        getQuarterComparisonConfig(selectedQuarter);
 
     const filteredRecords = (() => {
         if (isQuarterComparison) {
-            return attachYearOverYearChanges(records, comparisonQuarter);
+            return attachYearOverYearChanges(records, comparisonQuarters);
         }
 
         let base = records.filter((r) => r.fiscalYear === fyNum);
@@ -197,6 +197,7 @@ export function FinancialsListPhoneComponent({
                         <FinancialCardPhoneComponent
                             key={record.id}
                             record={record}
+                            comparisonLabel={comparisonLabel}
                             canManage={canManage}
                             openEditDialog={openEditDialog}
                             handleDelete={handleDelete}
@@ -210,7 +211,8 @@ export function FinancialsListPhoneComponent({
                 {isQuarterComparison ? (
                     <FinancialsQuarterComparisonChartComponent
                         records={records}
-                        quarter={comparisonQuarter}
+                        quarters={comparisonQuarters}
+                        label={comparisonLabel}
                         compact
                     />
                 ) : (

@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { formatSEK } from '@/lib/utils';
 import { FinancialMetricCell } from '@/components/application/management/financials/financial-yoy-badge';
+import { QUARTER_LABELS } from '@/components/application/management/financials/financials-constants';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,16 +10,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-const QUARTER_LABELS = {
-    0: 'Total Year',
-    1: 'Q1',
-    2: 'Q2',
-    3: 'Q3',
-    4: 'Q4',
-};
 
-export function FinancialCardPhoneComponent({ record, canManage, openEditDialog, handleDelete }) {
-    const quarterLabel = record.quarter === -1 ? 'Total Year' : QUARTER_LABELS[record.quarter];
+export function FinancialCardPhoneComponent({
+    record,
+    comparisonLabel,
+    canManage,
+    openEditDialog,
+    handleDelete,
+}) {
+    const quarterLabel =
+        comparisonLabel ??
+        (record.quarter === -1 ? 'Total Year' : QUARTER_LABELS[record.quarter]);
     const yoy = record._yoy;
 
     const renderMetric = (key, invertColors = false) => {
@@ -48,7 +50,7 @@ export function FinancialCardPhoneComponent({ record, canManage, openEditDialog,
                             <span className="text-xs text-muted-foreground">(computed)</span>
                         )}
                     </div>
-                    {canManage && !record._isComputed && (
+                    {canManage && !record._isComputed && !record._isAggregated && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
