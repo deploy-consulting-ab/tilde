@@ -55,9 +55,21 @@ export async function UserCardComponent({ user }) {
                             </p>
                         </div>
                         <div>
-                            <h3 className="text-sm font-medium">Carried Over Holidays</h3>
+                            <h3 className="text-sm font-medium">Earned Vacation Days</h3>
+                            <p className="text-sm text-gray-500">
+                                {user.vacationEarnedDays ?? 0} days
+                            </p>
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-medium">Saved Vacation Days</h3>
                             <p className="text-sm text-gray-500">
                                 {user.carriedOverHolidays || 0} days
+                            </p>
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-medium">Advance Vacation Days</h3>
+                            <p className="text-sm text-gray-500">
+                                {user.vacationAdvanceDays ?? 0} days
                             </p>
                         </div>
                     </div>

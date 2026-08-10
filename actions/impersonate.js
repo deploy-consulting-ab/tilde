@@ -49,6 +49,8 @@ export async function startImpersonation(userId) {
                 isActive: targetUser.isActive,
                 yearlyHolidays: targetUser.yearlyHolidays,
                 carriedOverHolidays: targetUser.carriedOverHolidays,
+                vacationEarnedDays: targetUser.vacationEarnedDays,
+                vacationAdvanceDays: targetUser.vacationAdvanceDays,
             },
             originalUser: {
                 id: session.user.sessionId,
@@ -64,6 +66,8 @@ export async function startImpersonation(userId) {
                 isActive: session.user.isActive,
                 yearlyHolidays: session.user.yearlyHolidays,
                 carriedOverHolidays: session.user.carriedOverHolidays,
+                vacationEarnedDays: session.user.vacationEarnedDays,
+                vacationAdvanceDays: session.user.vacationAdvanceDays,
             },
         };
 

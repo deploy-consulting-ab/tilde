@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { getAllAbsence, getHolidays } from '@/actions/flex/flex-actions';
+import { getHolidayEmployeeInfo } from '@/lib/utils';
 import { HolidaysWrapperComponent } from '@/components/application/holidays/holidays-wrapper';
 
 // Server action for refreshing data
@@ -15,11 +16,9 @@ export default async function HolidaysPage() {
     let absences = null;
     const session = await auth();
     const employeeNumber = session.user.employeeNumber;
-    const yearlyHolidays = session.user.yearlyHolidays;
-    const carriedOverHolidays = session.user.carriedOverHolidays;
 
     try {
-        holidays = await getHolidays({ employeeNumber, yearlyHolidays, carriedOverHolidays });
+        holidays = await getHolidays(getHolidayEmployeeInfo(session.user));
         const absenceResponse = await getAllAbsence(employeeNumber);
         absences = absenceResponse.Result;
     } catch (err) {

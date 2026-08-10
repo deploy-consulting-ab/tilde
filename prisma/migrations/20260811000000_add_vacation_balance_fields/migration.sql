@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "vacationEarnedDays" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "vacationAdvanceDays" DOUBLE PRECISION NOT NULL DEFAULT 0;

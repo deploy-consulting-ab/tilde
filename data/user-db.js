@@ -99,6 +99,8 @@ export async function getUsers() {
                 isActive: true,
                 yearlyHolidays: true,
                 carriedOverHolidays: true,
+                vacationEarnedDays: true,
+                vacationAdvanceDays: true,
             },
             orderBy: [
                 {
@@ -294,6 +296,8 @@ export const updateUserProfile = async (userId, profileId) => {
                 homeLayoutKey: true,
                 yearlyHolidays: true,
                 carriedOverHolidays: true,
+                vacationEarnedDays: true,
+                vacationAdvanceDays: true,
             },
         });
         return updatedUser;
@@ -336,7 +340,7 @@ export async function searchUsers(searchTerm) {
     try {
         const normalizedTerm = `%${searchTerm}%`;
         const users = await db.$queryRaw`
-            SELECT id, name, email, "employeeNumber", "profileId", "homeLayoutKey", "yearlyHolidays", "carriedOverHolidays"
+            SELECT id, name, email, "employeeNumber", "profileId", "homeLayoutKey", "yearlyHolidays", "carriedOverHolidays", "vacationEarnedDays", "vacationAdvanceDays"
             FROM "User"
             WHERE unaccent(name) ILIKE unaccent(${normalizedTerm})
                OR unaccent("employeeNumber") ILIKE unaccent(${normalizedTerm})

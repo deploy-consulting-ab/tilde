@@ -82,6 +82,8 @@ export async function createUserAction(values) {
             flexEmployeeId,
             yearlyHolidays,
             carriedOverHolidays,
+            vacationEarnedDays,
+            vacationAdvanceDays,
         } = validatedFields.data;
 
         const hashedPassword = await bcryptjs.hash(password, 10);
@@ -101,6 +103,8 @@ export async function createUserAction(values) {
             flexEmployeeId,
             yearlyHolidays,
             carriedOverHolidays,
+            vacationEarnedDays,
+            vacationAdvanceDays,
         });
 
         if (!createdUser) {

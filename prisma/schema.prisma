@@ -74,6 +74,8 @@ model User {
     sessionVersion  Int             @default(0)
     yearlyHolidays  Float           @default(30)
     carriedOverHolidays Float       @default(0)
+    vacationEarnedDays Float        @default(0)
+    vacationAdvanceDays Float       @default(0)
 
     createdAt DateTime? @default(now())
     updatedAt DateTime? @updatedAt

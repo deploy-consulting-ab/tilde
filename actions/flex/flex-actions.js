@@ -1,11 +1,11 @@
 'use server';
 
 import { requireAuth } from '@/lib/require-auth';
-
 import { NoResultsError, NetworkError, ApiError } from '../callouts/errors.js';
 import {
     calculateHolidays,
     calculateNextResetDate,
+    buildVacationBalanceFromProfile,
     generateDateRange,
     getUTCToday,
     formatDateToISOString,
@@ -454,14 +454,22 @@ export async function getAllAbsence(employeeNumber) {
  * @param {Object} employeeInformation - The employee information
  * @param {string} employeeInformation.employeeNumber - The employee number
  * @param {number} employeeInformation.yearlyHolidays - The yearly holidays
- * @param {number} employeeInformation.carriedOverHolidays - The carried over holidays
+ * @param {number} employeeInformation.carriedOverHolidays - Ingoing saved days at semester start
+ * @param {number} employeeInformation.vacationEarnedDays - Ingoing earned days at semester start
+ * @param {number} employeeInformation.vacationAdvanceDays - Ingoing advance days at semester start
  * @param {Object} options - The options for the request
  * @param {string} options.cache - The cache mode for the request
  * @returns {Promise<Object>} The holidays
  */
 export async function getHolidays(employeeInformation, options = { cache: 'no-store' }) {
     await requireAuth();
-    const { employeeNumber, yearlyHolidays, carriedOverHolidays } = employeeInformation;
+    const {
+        employeeNumber,
+        yearlyHolidays,
+        carriedOverHolidays,
+        vacationEarnedDays = 0,
+        vacationAdvanceDays = 0,
+    } = employeeInformation;
     try {
         const flexApiClient = await getFlexApiService();
         flexApiClient.config.cache = options.cache;
@@ -478,9 +486,20 @@ export async function getHolidays(employeeInformation, options = { cache: 'no-st
 
         const holidays = calculateHolidays(response.Result);
 
-        holidays.totalHolidays = yearlyHolidays + (carriedOverHolidays || 0); // Potentially get from flex
-        holidays.availableHolidays = holidays.totalHolidays - holidays.currentFiscalUsedHolidays;
-        holidays.carriedOverHolidays = carriedOverHolidays;
+        const savedDays = carriedOverHolidays ?? 0;
+        const balance = buildVacationBalanceFromProfile({
+            yearlyHolidays,
+            vacationEarnedDays,
+            vacationSavedDays: savedDays,
+            vacationAdvanceDays,
+            usedDays: holidays.currentFiscalUsedHolidays,
+        });
+
+        holidays.yearlyHolidays = yearlyHolidays;
+        holidays.totalHolidays = balance.totalDays;
+        holidays.availableHolidays = balance.availableDays;
+        holidays.carriedOverHolidays = savedDays;
+        holidays.balance = balance;
 
         // Format dates as ISO strings before sending to client
         holidays.recentHolidayPeriods = holidays.holidayPeriods.slice(0, 3).map((period) => ({
