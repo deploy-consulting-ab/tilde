@@ -130,7 +130,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.isActive = token.isActive;
             }
 
-            session.user.yearlyHolidays = token.yearlyHolidays ?? 30;
             session.user.carriedOverHolidays = token.carriedOverHolidays ?? 0;
             session.user.vacationEarnedDays = token.vacationEarnedDays ?? 0;
             session.user.vacationAdvanceDays = token.vacationAdvanceDays ?? 0;
@@ -151,7 +150,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.fieldPermissions = token.impersonatedUser.fieldPermissions;
                 session.user.image = token.impersonatedUser.image;
                 session.user.isActive = token.impersonatedUser.isActive;
-                session.user.yearlyHolidays = token.impersonatedUser.yearlyHolidays ?? 30;
                 session.user.carriedOverHolidays = token.impersonatedUser.carriedOverHolidays ?? 0;
                 session.user.vacationEarnedDays = token.impersonatedUser.vacationEarnedDays ?? 0;
                 session.user.vacationAdvanceDays = token.impersonatedUser.vacationAdvanceDays ?? 0;
@@ -197,7 +195,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.homeLayoutKey = user.homeLayoutKey;
                 token.isActive = user.isActive;
                 token.sessionVersion = user.sessionVersion ?? 0;
-                token.yearlyHolidays = user.yearlyHolidays ?? 30;
                 token.carriedOverHolidays = user.carriedOverHolidays ?? 0;
                 token.vacationEarnedDays = user.vacationEarnedDays ?? 0;
                 token.vacationAdvanceDays = user.vacationAdvanceDays ?? 0;

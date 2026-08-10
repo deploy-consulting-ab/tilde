@@ -38,7 +38,6 @@ export function UserEditForm({ user, onEditingChange, onSubmit }) {
             profileId: user.profileId || '',
             homeLayoutKey: user.homeLayoutKey || 'none',
             isActive: user.isActive || true,
-            yearlyHolidays: user.yearlyHolidays || 30,
             carriedOverHolidays: user.carriedOverHolidays || 0,
             vacationEarnedDays: user.vacationEarnedDays ?? 0,
             vacationAdvanceDays: user.vacationAdvanceDays ?? 0,
@@ -183,26 +182,6 @@ export function UserEditForm({ user, onEditingChange, onSubmit }) {
                                     <Switch
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Yearly Holidays */}
-                    <FormField
-                        control={form.control}
-                        name="yearlyHolidays"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Yearly Holidays</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        {...field}
-                                        type="number"
-                                        step="0.5"
-                                        placeholder="Enter yearly holidays"
                                     />
                                 </FormControl>
                                 <FormMessage />

@@ -19,7 +19,7 @@ import { OccupancyRatesCardComponent } from '@/components/application/home/dashb
 import { QuickLinksCardComponent } from '@/components/application/home/dashboard-cards/quick-links-card';
 import { StatisticsCardComponent } from '@/components/application/home/dashboard-cards/statistics-card';
 
-export async function AdminHomeComponent({ user, yearlyHolidays, carriedOverHolidays }) {
+export async function AdminHomeComponent({ user }) {
     const data = {
         holidays: null,
         occupancyRates: null,

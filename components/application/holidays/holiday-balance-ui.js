@@ -18,8 +18,6 @@ export const HOLIDAY_BALANCE_TOOLTIPS = {
     advance:
         'Ingoing advance days at semester start (Flex: Ingoing Vacation advance). Upfront days for this semester year.',
     used: 'Vacation days registered in Flex during the current semester year (weekdays, excluding public holidays).',
-    entitlement:
-        'Annual paid vacation entitlement per contract (typically 30 days). Reference only; Total comes from the three pools.',
     reset: 'Semester year resets on 1 April. HR should update ingoing pool values at the start of each semester year.',
     manual:
         'Ingoing pool balances are set manually by HR at semester start from Flex Period Information. Used is calculated automatically from Flex absences.',
@@ -46,14 +44,15 @@ export function HolidayInfoTooltip({ label, description, side = 'top', size = 'd
     return (
         <Tooltip>
             <TooltipTrigger asChild>
-                <button
-                    type="button"
+                <span
+                    tabIndex={0}
                     className="inline-flex shrink-0 cursor-help text-muted-foreground/60 hover:text-muted-foreground"
                     aria-label={`About ${label}`}
                     onClick={(event) => event.stopPropagation()}
+                    onKeyDown={(event) => event.stopPropagation()}
                 >
                     <Info className={iconClassName} />
-                </button>
+                </span>
             </TooltipTrigger>
             <TooltipContent side={side} className="max-w-xs whitespace-pre-line text-left">
                 {description}
@@ -164,15 +163,15 @@ export function HolidayTotalBreakdownStat({
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverAnchor asChild>
-                <button
-                    type="button"
+                <div
                     className={cn(
                         'text-center min-w-0 px-1 w-full cursor-help outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm',
                         showBorder && 'border-r border-border/50'
                     )}
-                    title={HOLIDAY_BALANCE_TOOLTIPS.total}
+                    role="group"
                     aria-label="Total vacation days. Hover for earned, saved, and advance breakdown."
                     aria-expanded={open}
+                    tabIndex={0}
                     onMouseEnter={handleOpen}
                     onMouseLeave={scheduleClose}
                     onFocus={handleOpen}
@@ -195,7 +194,7 @@ export function HolidayTotalBreakdownStat({
                             size="sm"
                         />
                     </div>
-                </button>
+                </div>
             </PopoverAnchor>
             <PopoverContent
                 className="w-56 p-3"

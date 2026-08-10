@@ -4,13 +4,7 @@ import { getHomeLayoutForProfile } from '@/components/application/home/home-layo
 export default async function HomePage() {
     const session = await auth();
     const user = session.user;
-    const { profileId, homeLayoutKey, yearlyHolidays, carriedOverHolidays } = user;
+    const { profileId, homeLayoutKey } = user;
     const LayoutComponent = getHomeLayoutForProfile(profileId, homeLayoutKey);
-    return (
-        <LayoutComponent
-            user={user}
-            yearlyHolidays={yearlyHolidays}
-            carriedOverHolidays={carriedOverHolidays}
-        />
-    );
+    return <LayoutComponent user={user} />;
 }

@@ -29,7 +29,7 @@ import {
  * Tools default to the session user's employeeNumber / flexEmployeeId when
  * the caller does not provide an explicit value.
  *
- * @param {{ name: string, employeeNumber: string|null, flexEmployeeId: string|null, yearlyHolidays: number, carriedOverHolidays: number }} user
+ * @param {{ name: string, employeeNumber: string|null, flexEmployeeId: string|null, carriedOverHolidays: number }} user
  * @returns {Record<string, import('ai').CoreTool>}
  */
 export function createAgentTools(user) {

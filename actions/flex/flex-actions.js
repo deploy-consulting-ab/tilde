@@ -453,7 +453,6 @@ export async function getAllAbsence(employeeNumber) {
  * Get the holidays for a given employee number
  * @param {Object} employeeInformation - The employee information
  * @param {string} employeeInformation.employeeNumber - The employee number
- * @param {number} employeeInformation.yearlyHolidays - The yearly holidays
  * @param {number} employeeInformation.carriedOverHolidays - Ingoing saved days at semester start
  * @param {number} employeeInformation.vacationEarnedDays - Ingoing earned days at semester start
  * @param {number} employeeInformation.vacationAdvanceDays - Ingoing advance days at semester start
@@ -465,7 +464,6 @@ export async function getHolidays(employeeInformation, options = { cache: 'no-st
     await requireAuth();
     const {
         employeeNumber,
-        yearlyHolidays,
         carriedOverHolidays,
         vacationEarnedDays = 0,
         vacationAdvanceDays = 0,
@@ -488,14 +486,12 @@ export async function getHolidays(employeeInformation, options = { cache: 'no-st
 
         const savedDays = carriedOverHolidays ?? 0;
         const balance = buildVacationBalanceFromProfile({
-            yearlyHolidays,
             vacationEarnedDays,
             vacationSavedDays: savedDays,
             vacationAdvanceDays,
             usedDays: holidays.currentFiscalUsedHolidays,
         });
 
-        holidays.yearlyHolidays = yearlyHolidays;
         holidays.totalHolidays = balance.totalDays;
         holidays.availableHolidays = balance.availableDays;
         holidays.carriedOverHolidays = savedDays;

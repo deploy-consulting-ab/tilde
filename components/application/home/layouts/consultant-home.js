@@ -20,7 +20,7 @@ import { OccupancyRatesCardComponent } from '@/components/application/home/dashb
 import { QuickLinksCardComponent } from '@/components/application/home/dashboard-cards/quick-links-card';
 import { StatisticsCardComponent } from '@/components/application/home/dashboard-cards/statistics-card';
 
-export async function ConsultantHomeComponent({ user, yearlyHolidays, carriedOverHolidays }) {
+export async function ConsultantHomeComponent({ user }) {
     const { flexEmployeeId, profileId, employeeNumber, name } = user;
 
     // Initialize data and errors

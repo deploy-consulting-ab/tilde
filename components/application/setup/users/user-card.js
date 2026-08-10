@@ -49,12 +49,6 @@ export async function UserCardComponent({ user }) {
                             <Checkbox id="toggle" checked={user.isActive} disabled={true} />
                         </div>
                         <div>
-                            <h3 className="text-sm font-medium">Yearly Holidays</h3>
-                            <p className="text-sm text-gray-500">
-                                {user.yearlyHolidays || 30} days
-                            </p>
-                        </div>
-                        <div>
                             <h3 className="text-sm font-medium">Earned Vacation Days</h3>
                             <p className="text-sm text-gray-500">
                                 {user.vacationEarnedDays ?? 0} days

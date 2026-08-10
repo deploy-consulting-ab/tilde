@@ -8,7 +8,7 @@ import { transformHolidaysData, getHolidayEmployeeInfo } from '@/lib/utils';
 import { HolidaysCardComponent } from '@/components/application/home/dashboard-cards/holidays-card';
 import { QuickLinksCardComponent } from '@/components/application/home/dashboard-cards/quick-links-card';
 
-export async function SalesHomeComponent({ user, yearlyHolidays, carriedOverHolidays }) {
+export async function SalesHomeComponent({ user }) {
     const { profileId, employeeNumber, name } = user;
     // Initialize data and errors
     let loading = true;
