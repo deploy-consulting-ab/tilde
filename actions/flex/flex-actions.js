@@ -475,7 +475,7 @@ export async function getHolidays(employeeInformation, options = { cache: 'no-st
         const response = await flexApiClient.getAbsenceApplications(
             employeeNumber,
             HOLIDAY_TYPE_ID,
-            30
+            1000
         );
 
         if (!response?.Result) {
