@@ -158,7 +158,7 @@ export function FieldPermissionAssignmentsListComponent({
 
     const viewFilter = (
         <Select value={view} onValueChange={handleFilterView} key="view-filter">
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45 hover:cursor-pointer">
                 <SelectValue placeholder="Select view" />
             </SelectTrigger>
             <SelectContent>

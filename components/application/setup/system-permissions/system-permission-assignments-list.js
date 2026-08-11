@@ -201,7 +201,7 @@ export function SystemPermissionAssignmentsListComponent({
             onValueChange={handleFilterSystemPermissionAssignments}
             key="view-by-system-permission-assignments"
         >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45 hover:cursor-pointer">
                 <SelectValue placeholder="Select view" />
             </SelectTrigger>
             <SelectContent>

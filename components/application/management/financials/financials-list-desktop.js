@@ -33,7 +33,10 @@ import {
     FinancialsCustomPeriodComparisonChartComponent,
 } from '@/components/application/management/financials/financials-chart';
 import { FinancialMetricCell } from '@/components/application/management/financials/financial-yoy-badge';
-import { FinancialsPeriodCompareControls, FinancialsCompareQuartersButton } from '@/components/application/management/financials/financials-period-compare-controls';
+import {
+    FinancialsPeriodCompareControls,
+    FinancialsCompareQuartersButton,
+} from '@/components/application/management/financials/financials-period-compare-controls';
 import { ErrorDisplayComponent } from '@/components/errors/error-display';
 import {
     getFinancialsAction,
@@ -157,11 +160,7 @@ export function FinancialsListDesktopComponent({
 
     const filteredRecords = (() => {
         if (isCompareActive && appliedCompareBase && appliedCompareTarget) {
-            return buildCustomPeriodComparison(
-                records,
-                appliedCompareBase,
-                appliedCompareTarget
-            );
+            return buildCustomPeriodComparison(records, appliedCompareBase, appliedCompareTarget);
         }
 
         if (isQuarterComparison) {
@@ -390,7 +389,7 @@ export function FinancialsListDesktopComponent({
 
     const fyFilterView = !showCompareSetup ? (
         <Select value={selectedFY} onValueChange={setSelectedFY} key="fy-filter">
-            <SelectTrigger className="w-[160px] hover:cursor-pointer">
+            <SelectTrigger className="w-40 hover:cursor-pointer">
                 <SelectValue placeholder="Fiscal Year" />
             </SelectTrigger>
             <SelectContent>
@@ -405,7 +404,7 @@ export function FinancialsListDesktopComponent({
 
     const quarterFilterView = !showCompareSetup ? (
         <Select value={selectedQuarter} onValueChange={setSelectedQuarter} key="quarter-filter">
-            <SelectTrigger className="w-[240px] hover:cursor-pointer">
+            <SelectTrigger className="w-60 hover:cursor-pointer">
                 <SelectValue placeholder="Quarter" />
             </SelectTrigger>
             <SelectContent>
@@ -422,9 +421,7 @@ export function FinancialsListDesktopComponent({
         <FinancialsCompareQuartersButton
             key="compare-quarters"
             isActive={showCompareSetup}
-            onClick={() =>
-                showCompareSetup ? handleCancelCompare() : setShowCompareSetup(true)
-            }
+            onClick={() => (showCompareSetup ? handleCancelCompare() : setShowCompareSetup(true))}
         />
     );
 

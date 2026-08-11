@@ -341,7 +341,7 @@ export function UsersListComponent({ users, error: initialError }) {
 
     const viewByProfiles = (
         <Select value={view} onValueChange={handleFilterProfiles} key="view-by-profiles">
-            <SelectTrigger className="w-[180px] hover:cursor-pointer">
+            <SelectTrigger className="w-45 hover:cursor-pointer">
                 <SelectValue placeholder="Select view" />
             </SelectTrigger>
             <SelectContent>

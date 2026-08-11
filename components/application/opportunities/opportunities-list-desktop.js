@@ -221,7 +221,7 @@ export function OpportunitiesListDesktopComponent({
 
     const viewByOpportunities = (
         <Select value={view} onValueChange={handleFilterOpportunities} key="view-by-opportunities">
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45 hover:cursor-pointer">
                 <SelectValue placeholder="Select view" />
             </SelectTrigger>
             <SelectContent>

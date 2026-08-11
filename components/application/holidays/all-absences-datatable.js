@@ -165,7 +165,7 @@ export function AllAbsencesDatatableComponent({ absences, employeeNumber }) {
 
     const viewByAbsenceType = (
         <Select value={view} onValueChange={handleFilterAbsences} key="view-by-absence-type">
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45 hover:cursor-pointer">
                 <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
             <SelectContent>

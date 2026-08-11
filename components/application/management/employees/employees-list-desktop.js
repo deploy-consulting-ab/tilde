@@ -242,7 +242,7 @@ export function EmployeesListDesktopComponent({ employees, error: initialError }
             onValueChange={handleFilterEmploymentType}
             key="view-by-employment-type"
         >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45 hover:cursor-pointer">
                 <SelectValue placeholder="Select view" />
             </SelectTrigger>
             <SelectContent>

@@ -77,7 +77,7 @@ export function AssignmentsListPhoneComponent({
                     className="w-full text-sm"
                 />
                 <Select value={view} onValueChange={handleFilterAssignment} key="view-by-projects">
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full hover:cursor-pointer">
                         <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>

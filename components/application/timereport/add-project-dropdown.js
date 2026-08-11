@@ -37,7 +37,7 @@ export function AddProjectDropdownComponent({
                 className={
                     variant === 'compact'
                         ? 'w-full sm:w-auto gap-2 border-dashed hover:cursor-pointer'
-                        : 'w-full sm:w-[200px]'
+                        : 'w-full sm:w-50'
                 }
             >
                 {variant === 'compact' && <Plus className="h-4 w-4" />}

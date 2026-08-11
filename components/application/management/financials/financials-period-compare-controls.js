@@ -29,7 +29,7 @@ function PeriodSelectGroup({
             </span>
             <Select value={fiscalYear} onValueChange={onFiscalYearChange}>
                 <SelectTrigger
-                    className={`h-8 hover:cursor-pointer ${fillWidth ? 'flex-1' : 'w-[88px]'}`}
+                    className={`h-8 hover:cursor-pointer ${fillWidth ? 'flex-1' : 'w-22'}`}
                 >
                     <SelectValue placeholder="FY" />
                 </SelectTrigger>
@@ -43,7 +43,7 @@ function PeriodSelectGroup({
             </Select>
             <Select value={quarter} onValueChange={onQuarterChange}>
                 <SelectTrigger
-                    className={`h-8 hover:cursor-pointer ${fillWidth ? 'flex-1' : 'w-[72px]'}`}
+                    className={`h-8 hover:cursor-pointer ${fillWidth ? 'flex-1' : 'w-18'}`}
                 >
                     <SelectValue placeholder="Q" />
                 </SelectTrigger>
@@ -95,7 +95,11 @@ export function FinancialsPeriodCompareControls({
                     fillWidth
                 />
                 <div className="flex items-center gap-2 pt-1">
-                    <Button size="sm" className="flex-1 hover:cursor-pointer" onClick={onLaunchCompare}>
+                    <Button
+                        size="sm"
+                        className="flex-1 hover:cursor-pointer"
+                        onClick={onLaunchCompare}
+                    >
                         Compare
                     </Button>
                     {onCancel && (

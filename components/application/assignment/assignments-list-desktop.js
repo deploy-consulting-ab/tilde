@@ -23,9 +23,7 @@ function filterAssignmentsByView(assignments, view) {
         return assignments;
     }
 
-    return assignments.filter(
-        (item) => item.projectStatus.toLowerCase() === view.toLowerCase()
-    );
+    return assignments.filter((item) => item.projectStatus.toLowerCase() === view.toLowerCase());
 }
 
 function assignmentsListReducer(state, action) {
@@ -249,7 +247,7 @@ export function AssignmentsListDesktopComponent({
 
     const viewByProjects = (
         <Select value={view} onValueChange={handleFilterAssignment} key="view-by-projects">
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45 hover:cursor-pointer">
                 <SelectValue placeholder="Select view" />
             </SelectTrigger>
             <SelectContent>
