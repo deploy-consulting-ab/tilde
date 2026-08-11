@@ -51,7 +51,9 @@ export function HolidayInfoTooltip({
 
     const iconClassName = size === 'sm' ? 'size-3' : 'size-3.5';
     const triggerClassName = cn(
-        'inline-flex shrink-0 items-center justify-center text-muted-foreground/60 hover:text-muted-foreground',
+        'inline-flex shrink-0 items-center justify-center text-muted-foreground/60',
+        !disabled && 'hover:text-muted-foreground',
+        disabled && 'pointer-events-none',
         isMobile ? 'size-8 -m-1.5 rounded-full active:bg-muted/50' : 'cursor-help'
     );
 
@@ -142,6 +144,32 @@ export function HolidayBalanceStat({
     );
 }
 
+function HolidayBreakdownInfoIcon({ label, description, side, tooltipsEnabled }) {
+    if (!description) {
+        return null;
+    }
+
+    if (!tooltipsEnabled) {
+        return (
+            <span
+                className="inline-flex shrink-0 items-center justify-center text-muted-foreground/60 pointer-events-none"
+                aria-hidden="true"
+            >
+                <Info className="size-3" />
+            </span>
+        );
+    }
+
+    return (
+        <HolidayInfoTooltip
+            label={label}
+            description={description}
+            side={side}
+            size="sm"
+        />
+    );
+}
+
 function HolidayTotalBreakdownRow({
     label,
     value,
@@ -156,15 +184,12 @@ function HolidayTotalBreakdownRow({
         <div className="flex items-center justify-between gap-4 py-1.5">
             <div className="flex items-center gap-1 min-w-0">
                 <span className="text-sm text-muted-foreground">{label}</span>
-                {description && (
-                    <HolidayInfoTooltip
-                        label={label}
-                        description={description}
-                        side="top"
-                        size="sm"
-                        disabled={!tooltipsEnabled}
-                    />
-                )}
+                <HolidayBreakdownInfoIcon
+                    label={label}
+                    description={description}
+                    side="top"
+                    tooltipsEnabled={tooltipsEnabled}
+                />
             </div>
             <span
                 className={cn(
@@ -189,6 +214,7 @@ export function HolidayTotalBreakdownStat({
     const [open, setOpen] = useState(false);
     const [breakdownTooltipsEnabled, setBreakdownTooltipsEnabled] = useState(false);
     const closeTimeoutRef = useRef(null);
+    const openMousePosRef = useRef(null);
 
     const clearCloseTimeout = () => {
         if (closeTimeoutRef.current) {
@@ -202,17 +228,34 @@ export function HolidayTotalBreakdownStat({
         closeTimeoutRef.current = setTimeout(() => {
             setOpen(false);
             setBreakdownTooltipsEnabled(false);
+            openMousePosRef.current = null;
         }, 120);
     };
 
-    const handleOpen = ({ enableTooltips = false } = {}) => {
+    const handleOpen = ({ enableTooltips = false, clientX, clientY } = {}) => {
         clearCloseTimeout();
         setOpen(true);
         setBreakdownTooltipsEnabled(enableTooltips);
+        openMousePosRef.current =
+            clientX != null && clientY != null ? { x: clientX, y: clientY } : null;
     };
 
-    const enableBreakdownTooltips = () => {
-        setBreakdownTooltipsEnabled(true);
+    const enableBreakdownTooltips = (event) => {
+        if (breakdownTooltipsEnabled) {
+            return;
+        }
+
+        const { clientX, clientY } = event;
+        if (!openMousePosRef.current) {
+            openMousePosRef.current = { x: clientX, y: clientY };
+            return;
+        }
+
+        const dx = Math.abs(clientX - openMousePosRef.current.x);
+        const dy = Math.abs(clientY - openMousePosRef.current.y);
+        if (dx + dy >= 4) {
+            setBreakdownTooltipsEnabled(true);
+        }
     };
 
     const keepOpen = () => {
@@ -224,6 +267,7 @@ export function HolidayTotalBreakdownStat({
         setOpen(nextOpen);
         if (!nextOpen) {
             setBreakdownTooltipsEnabled(false);
+            openMousePosRef.current = null;
         } else if (isMobile) {
             setBreakdownTooltipsEnabled(true);
         }
@@ -260,7 +304,15 @@ export function HolidayTotalBreakdownStat({
                     }
                     aria-expanded={open}
                     tabIndex={0}
-                    onMouseEnter={!isMobile ? () => handleOpen() : undefined}
+                    onMouseEnter={
+                        !isMobile
+                            ? (event) =>
+                                  handleOpen({
+                                      clientX: event.clientX,
+                                      clientY: event.clientY,
+                                  })
+                            : undefined
+                    }
                     onMouseLeave={!isMobile ? scheduleClose : undefined}
                     onFocus={!isMobile ? () => handleOpen({ enableTooltips: true }) : undefined}
                     onBlur={!isMobile ? scheduleClose : undefined}
@@ -290,6 +342,7 @@ export function HolidayTotalBreakdownStat({
                 align="center"
                 side="bottom"
                 sideOffset={8}
+                onOpenAutoFocus={(event) => event.preventDefault()}
                 onMouseEnter={!isMobile ? keepOpen : undefined}
                 onMouseLeave={!isMobile ? scheduleClose : undefined}
                 onMouseMove={!isMobile ? enableBreakdownTooltips : undefined}
@@ -318,12 +371,11 @@ export function HolidayTotalBreakdownStat({
                 <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-1">
                         <span className="text-sm font-medium">Total</span>
-                        <HolidayInfoTooltip
+                        <HolidayBreakdownInfoIcon
                             label="Total"
                             description={HOLIDAY_BALANCE_TOOLTIPS.total}
                             side="top"
-                            size="sm"
-                            disabled={!breakdownTooltipsActive}
+                            tooltipsEnabled={breakdownTooltipsActive}
                         />
                     </div>
                     <span
