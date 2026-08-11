@@ -87,7 +87,7 @@ export function AppHeaderBar({ user, location, showSetup }) {
         >
             <div className="relative z-10 flex min-w-fit shrink-0 items-center gap-1 md:gap-4">
                 <MobileBackButtonComponent className="md:hidden" />
-                <SidebarTrigger className="-ml-1 shrink-0 rounded-lg transition-colors hover:bg-accent/50" />
+                <SidebarTrigger className="-ml-1 shrink-0 rounded-lg transition-colors hover:bg-accent/50 hover:cursor-pointer" />
                 <div className="hidden min-w-0 overflow-hidden md:block">
                     <DynamicBreadcrumbComponent
                         maxContainerWidth={
