@@ -113,23 +113,27 @@ export function HolidaysCalendarComponent({ holidays, error }) {
                 <div className="flex items-center justify-between gap-4">
                     <h3 className="text-base font-semibold text-foreground">Your Holidays</h3>
                     <div className="flex items-center gap-2">
-                        <button
-                            type="button"
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={goToPreviousMonth}
-                            className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            aria-label="Previous month"
+                            className="h-8 w-8 shrink-0 hover:cursor-pointer"
                         >
                             <ChevronLeft className="h-4 w-4" />
-                        </button>
-                        <span className="text-sm text-foreground min-w-[110px] text-center">
+                        </Button>
+                        <span className="text-sm text-foreground min-w-27.5 text-center">
                             {MONTHS[currentMonth]} {currentYear}
                         </span>
-                        <button
-                            type="button"
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={goToNextMonth}
-                            className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            aria-label="Next month"
+                            className="h-8 w-8 shrink-0 hover:cursor-pointer"
                         >
                             <ChevronRight className="h-4 w-4" />
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
