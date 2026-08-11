@@ -278,6 +278,13 @@ const getEmployeesByNameOrEmployeeIdQuery = (query) => {
             ORDER BY IsActive__c DESC, Name ASC`;
 };
 
+const getEmployeeByEmployeeNumberQuery = (employeeNumber) => {
+    return `SELECT Id, EmploymentStartDate__c
+            FROM Employee__c
+            WHERE EmployeeId__c = '${employeeNumber}'
+            LIMIT 1`;
+};
+
 export {
     getAssignmentsByEmployeeNumberQuery,
     getAssignmentByIdQuery,
@@ -293,6 +300,7 @@ export {
     getEmployeesQuery,
     getEmployeeByIdQuery,
     getEmployeesByNameOrEmployeeIdQuery,
+    getEmployeeByEmployeeNumberQuery,
     getQuoteLinesQuery,
     getAssignmentsByEmployeeNumberQueryDynamic,
     getAssignmentByIdAndEmployeeNumberQueryDynamic,

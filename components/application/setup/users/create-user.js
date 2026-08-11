@@ -12,6 +12,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -38,8 +39,9 @@ export const CreateUserComponent = ({ fireSuccess }) => {
             employeeNumber: '',
             flexEmployeeId: '',
             profileId: CONSULTANT_PROFILE,
-            yearlyHolidays: 30,
             carriedOverHolidays: 0,
+            vacationEarnedDays: 0,
+            vacationAdvanceDays: 0,
         },
     });
 
@@ -195,32 +197,16 @@ export const CreateUserComponent = ({ fireSuccess }) => {
                             </FormItem>
                         )}
                     />
+                    <p className="text-sm font-medium pt-2">Flex vacation balances (ingoing)</p>
+                    <p className="text-xs text-muted-foreground -mt-2 mb-2">
+                        Ingoing values at semester start (1 April) from Flex Period Information.
+                    </p>
                     <FormField
                         control={form.control}
-                        name="yearlyHolidays"
+                        name="vacationEarnedDays"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Yearly Holidays</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        disabled={isSubmitting}
-                                        type="number"
-                                        step="0.5"
-                                        placeholder="30"
-                                        {...field}
-                                        className="input"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="carriedOverHolidays"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Carried Over Holidays</FormLabel>
+                                <FormLabel>Earned Vacation Days</FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={isSubmitting}
@@ -231,6 +217,55 @@ export const CreateUserComponent = ({ fireSuccess }) => {
                                         className="input"
                                     />
                                 </FormControl>
+                                <FormDescription>
+                                    Flex: Ingoing Vacation Days at semester start.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="carriedOverHolidays"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Saved Vacation Days</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        disabled={isSubmitting}
+                                        type="number"
+                                        step="0.5"
+                                        placeholder="0"
+                                        {...field}
+                                        className="input"
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Flex: Ingoing Vacation, saved days at semester start.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="vacationAdvanceDays"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Advance Vacation Days</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        disabled={isSubmitting}
+                                        type="number"
+                                        step="0.5"
+                                        placeholder="0"
+                                        {...field}
+                                        className="input"
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Flex: Ingoing Vacation (advance) at semester start.
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}

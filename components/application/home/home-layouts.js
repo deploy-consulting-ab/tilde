@@ -4,46 +4,22 @@ import { SalesHomeComponent } from '@/components/application/home/layouts/sales-
 import { ManagementHomeComponent } from '@/components/application/home/layouts/management-home';
 import { AdminHomeComponent } from '@/components/application/home/layouts/admin-home';
 
-export async function ConsultantHomeLayout({ user, yearlyHolidays, carriedOverHolidays }) {
-    return (
-        <ConsultantHomeComponent
-            user={user}
-            yearlyHolidays={yearlyHolidays}
-            carriedOverHolidays={carriedOverHolidays}
-        />
-    );
+export async function ConsultantHomeLayout({ user }) {
+    return <ConsultantHomeComponent user={user} />;
 }
 
-export async function SalesHomeLayout({ user, yearlyHolidays, carriedOverHolidays }) {
-    return (
-        <SalesHomeComponent
-            user={user}
-            yearlyHolidays={yearlyHolidays}
-            carriedOverHolidays={carriedOverHolidays}
-        />
-    );
+export async function SalesHomeLayout({ user }) {
+    return <SalesHomeComponent user={user} />;
 }
 
 export async function SubcontractorHomeLayout({ user }) {
     return <SubcontractorHomeComponent user={user} />;
 }
 
-export async function ManagementHomeLayout({ user, yearlyHolidays, carriedOverHolidays }) {
-    return (
-        <ManagementHomeComponent
-            user={user}
-            yearlyHolidays={yearlyHolidays}
-            carriedOverHolidays={carriedOverHolidays}
-        />
-    );
+export async function ManagementHomeLayout({ user }) {
+    return <ManagementHomeComponent user={user} />;
 }
 
-export async function AdminHomeLayout({ user, yearlyHolidays, carriedOverHolidays }) {
-    return (
-        <AdminHomeComponent
-            user={user}
-            yearlyHolidays={yearlyHolidays}
-            carriedOverHolidays={carriedOverHolidays}
-        />
-    );
+export async function AdminHomeLayout({ user }) {
+    return <AdminHomeComponent user={user} />;
 }

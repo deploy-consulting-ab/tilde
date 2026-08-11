@@ -8,6 +8,7 @@ import {
     FormLabel,
     FormControl,
     FormMessage,
+    FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -37,8 +38,9 @@ export function UserEditForm({ user, onEditingChange, onSubmit }) {
             profileId: user.profileId || '',
             homeLayoutKey: user.homeLayoutKey || 'none',
             isActive: user.isActive || true,
-            yearlyHolidays: user.yearlyHolidays || 30,
             carriedOverHolidays: user.carriedOverHolidays || 0,
+            vacationEarnedDays: user.vacationEarnedDays ?? 0,
+            vacationAdvanceDays: user.vacationAdvanceDays ?? 0,
         },
     });
 
@@ -187,41 +189,74 @@ export function UserEditForm({ user, onEditingChange, onSubmit }) {
                         )}
                     />
 
-                    {/* Yearly Holidays */}
+                    <p className="text-sm font-medium pt-2">Flex vacation balances (ingoing)</p>
+                    <p className="text-xs text-muted-foreground -mt-2 mb-2">
+                        Enter ingoing values at semester start (1 April) from Flex Period Information.
+                        Used days are calculated automatically from Flex absences; Available = Total − Used.
+                    </p>
+
                     <FormField
                         control={form.control}
-                        name="yearlyHolidays"
+                        name="vacationEarnedDays"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Yearly Holidays</FormLabel>
+                                <FormLabel>Earned Vacation Days</FormLabel>
                                 <FormControl>
                                     <Input
                                         {...field}
                                         type="number"
                                         step="0.5"
-                                        placeholder="Enter yearly holidays"
+                                        placeholder="0"
                                     />
                                 </FormControl>
+                                <FormDescription>
+                                    Flex: Ingoing Vacation Days at semester start.
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
-                    {/* Carried Over Holidays */}
+                    {/* Saved vacation days (Flex: sparad semester) */}
                     <FormField
                         control={form.control}
                         name="carriedOverHolidays"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Carried Over Holidays</FormLabel>
+                                <FormLabel>Saved Vacation Days</FormLabel>
                                 <FormControl>
                                     <Input
                                         {...field}
                                         type="number"
                                         step="0.5"
-                                        placeholder="Enter carried over holidays"
+                                        placeholder="0"
                                     />
                                 </FormControl>
+                                <FormDescription>
+                                    Flex: Ingoing Vacation, saved days at semester start.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="vacationAdvanceDays"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Advance Vacation Days</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        {...field}
+                                        type="number"
+                                        step="0.5"
+                                        placeholder="0"
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Flex: Ingoing Vacation (advance) at semester start.
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}

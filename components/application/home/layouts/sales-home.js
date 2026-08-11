@@ -4,11 +4,11 @@ import { Spinner } from '@/components/ui/spinner';
 import { getHomeRequiredDataForProfile } from '@/components/application/home/home-layout-selector';
 import { DashboardHeader } from '@/components/application/home/dashboard-header';
 import { refreshHome } from '@/components/application/home/refresh-home';
-import { transformHolidaysData } from '@/lib/utils';
+import { transformHolidaysData, getHolidayEmployeeInfo } from '@/lib/utils';
 import { HolidaysCardComponent } from '@/components/application/home/dashboard-cards/holidays-card';
 import { QuickLinksCardComponent } from '@/components/application/home/dashboard-cards/quick-links-card';
 
-export async function SalesHomeComponent({ user, yearlyHolidays, carriedOverHolidays }) {
+export async function SalesHomeComponent({ user }) {
     const { profileId, employeeNumber, name } = user;
     // Initialize data and errors
     let loading = true;
@@ -26,11 +26,7 @@ export async function SalesHomeComponent({ user, yearlyHolidays, carriedOverHoli
 
     if (dataRequirements.holidays) {
         try {
-            const rawHolidays = await getHolidays({
-                employeeNumber,
-                yearlyHolidays,
-                carriedOverHolidays,
-            });
+            const rawHolidays = await getHolidays(getHolidayEmployeeInfo(user));
             data.holidays = transformHolidaysData(rawHolidays);
         } catch (error) {
             errors.holidays = error.message || 'Failed to load holidays';

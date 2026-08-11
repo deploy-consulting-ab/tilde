@@ -10,6 +10,7 @@ import {
     transformHolidaysData,
     transformTimereportsToOccupancy,
     transformStatisticsData,
+    getHolidayEmployeeInfo,
 } from '@/lib/utils';
 import { getHomeRequiredDataForProfile } from '@/components/application/home/home-layout-selector';
 import { DashboardHeader } from '@/components/application/home/dashboard-header';
@@ -18,7 +19,7 @@ import { OccupancyRatesCardComponent } from '@/components/application/home/dashb
 import { QuickLinksCardComponent } from '@/components/application/home/dashboard-cards/quick-links-card';
 import { StatisticsCardComponent } from '@/components/application/home/dashboard-cards/statistics-card';
 
-export async function AdminHomeComponent({ user, yearlyHolidays, carriedOverHolidays }) {
+export async function AdminHomeComponent({ user }) {
     const data = {
         holidays: null,
         occupancyRates: null,
@@ -38,11 +39,7 @@ export async function AdminHomeComponent({ user, yearlyHolidays, carriedOverHoli
 
     if (dataRequirements.holidays) {
         try {
-            const rawHolidays = await getHolidays({
-                employeeNumber,
-                yearlyHolidays,
-                carriedOverHolidays,
-            });
+            const rawHolidays = await getHolidays(getHolidayEmployeeInfo(user));
             data.holidays = transformHolidaysData(rawHolidays);
         } catch (error) {
             errors.holidays = error.message || 'Failed to load holidays';

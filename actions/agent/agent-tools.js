@@ -15,7 +15,7 @@ import {
 } from '@/actions/flex/flex-actions';
 import { getFinancialsAction } from '@/actions/database/financials-actions';
 import { getFlexIdByEmployeeNumberAction } from '@/actions/database/user-actions';
-import { toPermissionSet } from '@/lib/utils';
+import { toPermissionSet, getHolidayEmployeeInfo } from '@/lib/utils';
 import {
     VIEW_MANAGEMENT_PERMISSION,
     VIEW_OPPORTUNITIES_PERMISSION,
@@ -29,14 +29,12 @@ import {
  * Tools default to the session user's employeeNumber / flexEmployeeId when
  * the caller does not provide an explicit value.
  *
- * @param {{ name: string, employeeNumber: string|null, flexEmployeeId: string|null, yearlyHolidays: number, carriedOverHolidays: number }} user
+ * @param {{ name: string, employeeNumber: string|null, flexEmployeeId: string|null, carriedOverHolidays: number }} user
  * @returns {Record<string, import('ai').CoreTool>}
  */
 export function createAgentTools(user) {
     const defaultEmployeeNumber = user?.employeeNumber ?? null;
     const defaultFlexEmployeeId = user?.flexEmployeeId ?? null;
-    const defaultYearlyHolidays = user?.yearlyHolidays ?? 30;
-    const defaultCarriedOverHolidays = user?.carriedOverHolidays ?? 0;
 
     const permissionsSet = toPermissionSet(user?.systemPermissions);
     const hasManagementViewPermission = permissionsSet.has(VIEW_MANAGEMENT_PERMISSION);
@@ -71,11 +69,7 @@ export function createAgentTools(user) {
                         error: 'Not authorized. You can only view your own holiday information.',
                     };
                 }
-                return getHolidays({
-                    employeeNumber: number,
-                    yearlyHolidays: defaultYearlyHolidays,
-                    carriedOverHolidays: defaultCarriedOverHolidays,
-                });
+                return getHolidays(getHolidayEmployeeInfo(user));
             },
         }),
 

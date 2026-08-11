@@ -13,6 +13,7 @@ import {
     getEmployeesQuery,
     getEmployeeByIdQuery,
     getEmployeesByNameOrEmployeeIdQuery,
+    getEmployeeByEmployeeNumberQuery,
     getQuoteLinesQuery,
     getAssignmentsByEmployeeNumberQueryDynamic,
     getAssignmentByIdAndEmployeeNumberQueryDynamic,
@@ -499,5 +500,28 @@ export async function getEmployeeById(employeeId) {
         };
     } catch (error) {
         throw error;
+    }
+}
+
+/**
+ * Returns employment start date for pro-rating vacation balances.
+ * @param {string} employeeNumber
+ * @returns {Promise<string|null>}
+ */
+export async function getEmployeeEmploymentStartByNumber(employeeNumber) {
+    await requireAuth();
+    if (!employeeNumber) {
+        return null;
+    }
+
+    try {
+        const result = await queryData(getEmployeeByEmployeeNumberQuery(employeeNumber));
+        if (!result?.length) {
+            return null;
+        }
+        return result[0].EmploymentStartDate__c ?? null;
+    } catch (error) {
+        console.error('Failed to fetch employment start date:', error.message);
+        return null;
     }
 }

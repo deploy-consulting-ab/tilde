@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardTitle } from '@/components/ui/card';
-import { Calendar, RefreshCw, ArrowUpRight } from 'lucide-react';
+import { RefreshCw, ArrowUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTransition } from 'react';
 import { formatDateToEnUSWithOptions } from '@/lib/utils';
@@ -9,6 +9,12 @@ import Link from 'next/link';
 import { HOLIDAYS_ROUTE } from '@/menus/routes';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import {
+    HolidayBalanceStat,
+    HolidayInfoTooltip,
+    HolidayTotalBreakdownStat,
+    HOLIDAY_BALANCE_TOOLTIPS,
+} from '@/components/application/holidays/holiday-balance-ui';
 
 export function HolidaysCardComponent({
     holidays,
@@ -25,16 +31,15 @@ export function HolidaysCardComponent({
         });
     }
 
-    // Get upcoming holidays from data
     const upcomingHolidays = holidays?.upcomingHolidays || [];
+    const totalDays = holidays?.totalDays ?? 0;
+    const usagePercent =
+        totalDays > 0 ? Math.round(((holidays?.usedDays ?? 0) / totalDays) * 100) : 0;
 
     if (error) {
         return (
             <Card className="p-6 bg-card/50 backdrop-blur border-border/50">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Holidays
-                </h3>
+                <h3 className="text-lg font-semibold mb-4">Holidays</h3>
                 <p className="text-sm text-destructive">{error}</p>
             </Card>
         );
@@ -42,11 +47,20 @@ export function HolidaysCardComponent({
 
     return (
         <Card className="p-6">
-            <div className="flex items-center justify-between">
-                <CardTitle className={`${isMobile ? 'text-sm' : 'text-xl'}`}>
-                    Upcoming Time Off
-                </CardTitle>
-                <div className="flex items-center gap-1">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-1.5 min-w-0">
+                    <CardTitle className={`${isMobile ? 'text-sm' : 'text-xl'} truncate`}>
+                        Upcoming Time Off
+                    </CardTitle>
+                    {holidays?.isBalanceManual && (
+                        <HolidayInfoTooltip
+                            label="Vacation balances"
+                            description={HOLIDAY_BALANCE_TOOLTIPS.manual}
+                            side="bottom"
+                        />
+                    )}
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
                     {refreshAction && (
                         <Button
                             variant="ghost"
@@ -66,70 +80,56 @@ export function HolidaysCardComponent({
                 </div>
             </div>
 
-            {/* Holiday Stats */}
             {holidays && (
-                <div className="grid grid-cols-4 mb-6 p-4 rounded-lg bg-background/50 border border-border/50">
-                    <div
-                        className="text-center border-r border-border/50 cursor-help"
-                        title="Days of holiday available to use this year"
-                    >
-                        <div className="text-2xl font-bold text-deploy-accent-lime">
-                            {holidays.availableDays ?? 0}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Available</div>
-                    </div>
-                    <div
-                        className="text-center border-r border-border/50 cursor-help"
-                        title="Days of holiday already used this year"
-                    >
-                        <div className="text-2xl font-bold text-deploy-accent-orange">
-                            {holidays.usedDays ?? 0}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Used</div>
-                    </div>
-                    <div
-                        className="text-center border-r border-border/50 cursor-help"
-                        title="Days carried over from previous year(s)"
-                    >
-                        <div className="text-2xl font-bold text-deploy-accent-blue">
-                            {holidays.carriedOverHolidays ?? 0}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Carried</div>
-                    </div>
-                    <div
-                        className="text-center cursor-help"
-                        title="Total holiday entitlement for this year, 30 days + carried over"
-                    >
-                        <div className="text-2xl font-bold text-foreground">
-                            {holidays.totalDays ?? 0}
-                        </div>
-                        <div className="text-xs text-muted-foreground">Total</div>
-                    </div>
+                <div className="grid grid-cols-3 mb-6 p-4 rounded-lg bg-background/50 border border-border/50">
+                    <HolidayBalanceStat
+                        label="Available"
+                        value={holidays.availableDays ?? 0}
+                        description={HOLIDAY_BALANCE_TOOLTIPS.available}
+                        valueClassName="text-deploy-accent-lime"
+                    />
+                    <HolidayBalanceStat
+                        label="Used"
+                        value={holidays.usedDays ?? 0}
+                        description={HOLIDAY_BALANCE_TOOLTIPS.used}
+                        valueClassName="text-deploy-accent-orange"
+                    />
+                    <HolidayTotalBreakdownStat
+                        totalDays={holidays.totalDays ?? 0}
+                        earnedDays={holidays.earnedDays ?? 0}
+                        savedDays={holidays.savedDays ?? 0}
+                        advanceDays={holidays.advanceDays ?? 0}
+                        showBorder={false}
+                    />
                 </div>
             )}
 
-            {/* Progress Bar */}
-            {holidays && holidays.totalDays > 0 && (
+            {holidays && totalDays > 0 && (
                 <div className="mb-6">
                     <div className="flex justify-between text-xs text-muted-foreground mb-2">
                         <span>Holiday Usage</span>
-                        <span>{Math.round((holidays.usedDays / holidays.totalDays) * 100)}%</span>
+                        <span>{usagePercent}%</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-linear-to-r from-deploy-accent-lime to-deploy-accent-yellow transition-all duration-500"
-                            style={{ width: `${(holidays.usedDays / holidays.totalDays) * 100}%` }}
+                            className="h-full bg-linear-to-r from-deploy-accent-lime to-deploy-accent-yellow transition-[width] duration-500"
+                            style={{ width: `${Math.min(100, usagePercent)}%` }}
                         />
                     </div>
                     {holidays.nextResetDate && (
-                        <p className="text-xs text-muted-foreground mt-2">
+                        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                             Resets on {formatDateToEnUSWithOptions(holidays.nextResetDate)}
+                            <HolidayInfoTooltip
+                                label="Semester reset"
+                                description={HOLIDAY_BALANCE_TOOLTIPS.reset}
+                                side="top"
+                                size="sm"
+                            />
                         </p>
                     )}
                 </div>
             )}
 
-            {/* Upcoming Holidays List */}
             <div className="space-y-3">
                 {upcomingHolidays.length > 0 ? (
                     upcomingHolidays.slice(0, 3).map((holiday) => (

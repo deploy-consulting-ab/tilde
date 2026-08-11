@@ -30,16 +30,17 @@ export const CreateUserSchema = z.object({
     profileId: z.enum(PROFILES, {
         required_error: 'Profile is required',
     }),
-    yearlyHolidays: z.coerce
-        .number()
-        .min(0, {
-            message: 'Yearly holidays must be a positive number',
-        })
-        .default(30),
     carriedOverHolidays: z.coerce
         .number()
         .min(0, {
-            message: 'Carried over holidays must be a positive number',
+            message: 'Saved vacation days must be zero or greater',
+        })
+        .default(0),
+    vacationEarnedDays: z.coerce.number().default(0),
+    vacationAdvanceDays: z.coerce
+        .number()
+        .min(0, {
+            message: 'Advance vacation days must be zero or greater',
         })
         .default(0),
 });
@@ -55,11 +56,12 @@ export const UpdateUserSchema = z.object({
         required_error: 'Profile is required',
     }),
     isActive: z.boolean().default(true),
-    yearlyHolidays: z.coerce.number().min(0, {
-        message: 'Yearly holidays must be a positive number',
-    }),
     carriedOverHolidays: z.coerce.number().min(0, {
-        message: 'Carried over holidays must be a positive number',
+        message: 'Saved vacation days must be zero or greater',
+    }),
+    vacationEarnedDays: z.coerce.number(),
+    vacationAdvanceDays: z.coerce.number().min(0, {
+        message: 'Advance vacation days must be zero or greater',
     }),
     homeLayoutKey: z.preprocess(
         (val) => (val === 'none' || val === '' ? null : val),

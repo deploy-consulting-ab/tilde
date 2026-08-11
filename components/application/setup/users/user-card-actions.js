@@ -129,7 +129,7 @@ export function UserCardActionsComponent({ user }) {
             </Button>
 
             <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-                <DialogContent>
+                <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Edit User</DialogTitle>
                         <DialogDescription>Edit the user details.</DialogDescription>
