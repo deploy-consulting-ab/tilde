@@ -3,7 +3,8 @@
 import { useRef, useState } from 'react';
 import { Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn, formatVacationDays } from '@/lib/utils';
 
 export const HOLIDAY_BALANCE_TOOLTIPS = {
@@ -34,19 +35,59 @@ const TOTAL_BREAKDOWN_ROWS = [
     },
 ];
 
-export function HolidayInfoTooltip({ label, description, side = 'top', size = 'default' }) {
+export function HolidayInfoTooltip({
+    label,
+    description,
+    side = 'top',
+    size = 'default',
+    disabled = false,
+}) {
+    const isMobile = useIsMobile();
+    const [open, setOpen] = useState(false);
+
     if (!description) {
         return null;
     }
 
     const iconClassName = size === 'sm' ? 'size-3' : 'size-3.5';
+    const triggerClassName = cn(
+        'inline-flex shrink-0 items-center justify-center text-muted-foreground/60 hover:text-muted-foreground',
+        isMobile ? 'size-8 -m-1.5 rounded-full active:bg-muted/50' : 'cursor-help'
+    );
+
+    if (isMobile) {
+        return (
+            <Popover
+                open={disabled ? false : open}
+                onOpenChange={disabled ? undefined : setOpen}
+            >
+                <PopoverTrigger asChild>
+                    <button
+                        type="button"
+                        className={triggerClassName}
+                        aria-label={`About ${label}`}
+                        disabled={disabled}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <Info className={iconClassName} />
+                    </button>
+                </PopoverTrigger>
+                <PopoverContent
+                    side={side}
+                    className="max-w-xs whitespace-pre-line text-left text-sm p-3"
+                >
+                    {description}
+                </PopoverContent>
+            </Popover>
+        );
+    }
 
     return (
-        <Tooltip>
+        <Tooltip {...(disabled ? { open: false } : {})}>
             <TooltipTrigger asChild>
                 <span
                     tabIndex={0}
-                    className="inline-flex shrink-0 cursor-help text-muted-foreground/60 hover:text-muted-foreground"
+                    className={triggerClassName}
                     aria-label={`About ${label}`}
                     onClick={(event) => event.stopPropagation()}
                     onKeyDown={(event) => event.stopPropagation()}
@@ -101,7 +142,13 @@ export function HolidayBalanceStat({
     );
 }
 
-function HolidayTotalBreakdownRow({ label, value, description, valueClassName }) {
+function HolidayTotalBreakdownRow({
+    label,
+    value,
+    description,
+    valueClassName,
+    tooltipsEnabled = true,
+}) {
     const displayValue = formatVacationDays(value);
     const isNegative = typeof value === 'number' && value < 0;
 
@@ -115,6 +162,7 @@ function HolidayTotalBreakdownRow({ label, value, description, valueClassName })
                         description={description}
                         side="top"
                         size="sm"
+                        disabled={!tooltipsEnabled}
                     />
                 )}
             </div>
@@ -137,7 +185,9 @@ export function HolidayTotalBreakdownStat({
     advanceDays,
     showBorder = true,
 }) {
+    const isMobile = useIsMobile();
     const [open, setOpen] = useState(false);
+    const [breakdownTooltipsEnabled, setBreakdownTooltipsEnabled] = useState(false);
     const closeTimeoutRef = useRef(null);
 
     const clearCloseTimeout = () => {
@@ -149,33 +199,72 @@ export function HolidayTotalBreakdownStat({
 
     const scheduleClose = () => {
         clearCloseTimeout();
-        closeTimeoutRef.current = setTimeout(() => setOpen(false), 120);
+        closeTimeoutRef.current = setTimeout(() => {
+            setOpen(false);
+            setBreakdownTooltipsEnabled(false);
+        }, 120);
     };
 
-    const handleOpen = () => {
+    const handleOpen = ({ enableTooltips = false } = {}) => {
+        clearCloseTimeout();
+        setOpen(true);
+        setBreakdownTooltipsEnabled(enableTooltips);
+    };
+
+    const enableBreakdownTooltips = () => {
+        setBreakdownTooltipsEnabled(true);
+    };
+
+    const keepOpen = () => {
         clearCloseTimeout();
         setOpen(true);
     };
 
+    const handlePopoverOpenChange = (nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+            setBreakdownTooltipsEnabled(false);
+        } else if (isMobile) {
+            setBreakdownTooltipsEnabled(true);
+        }
+    };
+
+    const toggleMobileBreakdown = (event) => {
+        event.stopPropagation();
+        clearCloseTimeout();
+        setOpen((prev) => {
+            const next = !prev;
+            setBreakdownTooltipsEnabled(next);
+            return next;
+        });
+    };
+
     const displayValue = formatVacationDays(totalDays);
     const isNegative = typeof totalDays === 'number' && totalDays < 0;
+    const breakdownTooltipsActive = isMobile || breakdownTooltipsEnabled;
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={handlePopoverOpenChange}>
             <PopoverAnchor asChild>
                 <div
                     className={cn(
-                        'text-center min-w-0 px-1 w-full cursor-help outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm',
-                        showBorder && 'border-r border-border/50'
+                        'text-center min-w-0 px-1 w-full outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm',
+                        showBorder && 'border-r border-border/50',
+                        isMobile ? 'cursor-pointer active:bg-muted/30' : 'cursor-help'
                     )}
                     role="group"
-                    aria-label="Total vacation days. Hover for earned, saved, and advance breakdown."
+                    aria-label={
+                        isMobile
+                            ? 'Total vacation days. Tap for earned, saved, and advance breakdown.'
+                            : 'Total vacation days. Hover for earned, saved, and advance breakdown.'
+                    }
                     aria-expanded={open}
                     tabIndex={0}
-                    onMouseEnter={handleOpen}
-                    onMouseLeave={scheduleClose}
-                    onFocus={handleOpen}
-                    onBlur={scheduleClose}
+                    onMouseEnter={!isMobile ? () => handleOpen() : undefined}
+                    onMouseLeave={!isMobile ? scheduleClose : undefined}
+                    onFocus={!isMobile ? () => handleOpen({ enableTooltips: true }) : undefined}
+                    onBlur={!isMobile ? scheduleClose : undefined}
+                    onClick={isMobile ? toggleMobileBreakdown : undefined}
                 >
                     <div
                         className={cn(
@@ -200,8 +289,10 @@ export function HolidayTotalBreakdownStat({
                 className="w-56 p-3"
                 align="center"
                 side="bottom"
-                onMouseEnter={handleOpen}
-                onMouseLeave={scheduleClose}
+                sideOffset={8}
+                onMouseEnter={!isMobile ? keepOpen : undefined}
+                onMouseLeave={!isMobile ? scheduleClose : undefined}
+                onMouseMove={!isMobile ? enableBreakdownTooltips : undefined}
             >
                 <p className="text-xs font-medium text-muted-foreground mb-2">
                     Total breakdown
@@ -220,6 +311,7 @@ export function HolidayTotalBreakdownStat({
                             }
                             description={HOLIDAY_BALANCE_TOOLTIPS[row.tooltipKey]}
                             valueClassName={row.valueClassName}
+                            tooltipsEnabled={breakdownTooltipsActive}
                         />
                     ))}
                 </div>
@@ -231,6 +323,7 @@ export function HolidayTotalBreakdownStat({
                             description={HOLIDAY_BALANCE_TOOLTIPS.total}
                             side="top"
                             size="sm"
+                            disabled={!breakdownTooltipsActive}
                         />
                     </div>
                     <span
