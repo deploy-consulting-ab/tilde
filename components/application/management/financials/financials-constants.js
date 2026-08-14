@@ -18,6 +18,8 @@ export const SINGLE_QUARTER_OPTIONS = [
     { value: '4', label: 'Q4' },
 ];
 
+export const ALL_FY_VALUE = 'all';
+
 export const QUARTER_FILTER_OPTIONS = [
     { value: 'all', label: 'All Quarters' },
     { value: '0', label: 'Total Year' },
@@ -37,11 +39,32 @@ export function formatFinancialPeriodLabel(fiscalYear, quarter) {
 }
 
 /**
+ * @param {{ quarter?: number|null, _isAggregated?: boolean, _aggregatedQuarters?: number[] }} record
+ * @returns {string}
+ */
+export function formatFinancialQuarterLabel(record) {
+    if (record._isAggregated && record._aggregatedQuarters) {
+        return record._aggregatedQuarters.map((q) => QUARTER_LABELS[q]).join(' + ');
+    }
+
+    if (record.quarter === -1 || record.quarter === 0) return 'Total Year';
+    if (record.quarter == null) return '—';
+
+    return QUARTER_LABELS[record.quarter] ?? `Q${record.quarter}`;
+}
+
+/**
  * Resolve quarter filter selection into comparison mode config.
+ * Comparison across fiscal years is only enabled when "All FY" is selected.
  * @param {string} selectedQuarter
+ * @param {string} selectedFY
  * @returns {{ isComparison: boolean, quarters: number[]|null, label: string|null }}
  */
-export function getQuarterComparisonConfig(selectedQuarter) {
+export function getQuarterComparisonConfig(selectedQuarter, selectedFY) {
+    if (selectedFY !== ALL_FY_VALUE) {
+        return { isComparison: false, quarters: null, label: null };
+    }
+
     if (['1', '2', '3', '4'].includes(selectedQuarter)) {
         const quarter = parseInt(selectedQuarter, 10);
         return {

@@ -40,7 +40,7 @@ import {
     attachYearOverYearChanges,
     buildCustomPeriodComparison,
 } from '@/lib/utils';
-import { QUARTER_FILTER_OPTIONS, getQuarterComparisonConfig } from '../financials-constants';
+import { QUARTER_FILTER_OPTIONS, ALL_FY_VALUE, getQuarterComparisonConfig } from '../financials-constants';
 import { FinancialCardPhoneComponent } from './financial-card-phone';
 
 export function FinancialsListPhoneComponent({
@@ -135,12 +135,13 @@ export function FinancialsListPhoneComponent({
         setIsEditDialogOpen(true);
     };
 
-    const fyNum = parseInt(selectedFY, 10);
+    const isAllFY = selectedFY === ALL_FY_VALUE;
+    const fyNum = isAllFY ? defaultFY : parseInt(selectedFY, 10);
     const {
         isComparison: isQuarterComparison,
         quarters: comparisonQuarters,
         label: comparisonLabel,
-    } = getQuarterComparisonConfig(selectedQuarter);
+    } = getQuarterComparisonConfig(selectedQuarter, selectedFY);
 
     const filteredRecords = (() => {
         if (isCompareActive && appliedCompareBase && appliedCompareTarget) {
@@ -155,7 +156,7 @@ export function FinancialsListPhoneComponent({
             return attachYearOverYearChanges(records, comparisonQuarters);
         }
 
-        let base = records.filter((r) => r.fiscalYear === fyNum);
+        let base = isAllFY ? records : records.filter((r) => r.fiscalYear === fyNum);
 
         if (selectedQuarter !== 'all') {
             const qNum = parseInt(selectedQuarter, 10);
@@ -164,7 +165,7 @@ export function FinancialsListPhoneComponent({
 
         const rows = [...base];
 
-        if (canManage) {
+        if (canManage && !isAllFY) {
             if (selectedQuarter === 'all' || selectedQuarter === '-1') {
                 const computed = buildComputedTotal(records, fyNum);
                 if (computed) rows.push(computed);
@@ -176,7 +177,12 @@ export function FinancialsListPhoneComponent({
             if (q === 0) return 5;
             return 6;
         };
-        return rows.sort((a, b) => sortKey(a.quarter) - sortKey(b.quarter));
+        return rows.sort((a, b) => {
+            if (isAllFY && a.fiscalYear !== b.fiscalYear) {
+                return b.fiscalYear - a.fiscalYear;
+            }
+            return sortKey(a.quarter) - sortKey(b.quarter);
+        });
     })();
 
     const fyOptions = (() => {
@@ -213,6 +219,7 @@ export function FinancialsListPhoneComponent({
                             <SelectValue placeholder="Fiscal Year" />
                         </SelectTrigger>
                         <SelectContent>
+                            <SelectItem value={ALL_FY_VALUE}>All FY</SelectItem>
                             {fyOptions.map((fy) => (
                                 <SelectItem key={fy} value={String(fy)}>
                                     FY{String(fy).slice(-2)}
@@ -267,7 +274,6 @@ export function FinancialsListPhoneComponent({
                         <FinancialCardPhoneComponent
                             key={record.id}
                             record={record}
-                            comparisonLabel={isCompareActive ? null : comparisonLabel}
                             canManage={canManage}
                             openEditDialog={openEditDialog}
                             handleDelete={handleDelete}
@@ -282,7 +288,9 @@ export function FinancialsListPhoneComponent({
                     fiscalYear={
                         isCompareActive && appliedCompareTarget
                             ? appliedCompareTarget.fiscalYear
-                            : fyNum
+                            : isAllFY
+                              ? defaultFY
+                              : parseInt(selectedFY, 10)
                     }
                     compact
                 />

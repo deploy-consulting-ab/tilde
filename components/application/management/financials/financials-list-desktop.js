@@ -54,9 +54,10 @@ import {
     buildCustomPeriodComparison,
 } from '@/lib/utils';
 import {
-    QUARTER_LABELS,
     QUARTER_FILTER_OPTIONS,
+    ALL_FY_VALUE,
     getQuarterComparisonConfig,
+    formatFinancialQuarterLabel,
 } from '@/components/application/management/financials/financials-constants';
 
 export function FinancialsListDesktopComponent({
@@ -151,12 +152,13 @@ export function FinancialsListDesktopComponent({
         setIsEditDialogOpen(true);
     };
 
-    const fyNum = parseInt(selectedFY, 10);
+    const isAllFY = selectedFY === ALL_FY_VALUE;
+    const fyNum = isAllFY ? defaultFY : parseInt(selectedFY, 10);
     const {
         isComparison: isQuarterComparison,
         quarters: comparisonQuarters,
         label: comparisonLabel,
-    } = getQuarterComparisonConfig(selectedQuarter);
+    } = getQuarterComparisonConfig(selectedQuarter, selectedFY);
 
     const filteredRecords = (() => {
         if (isCompareActive && appliedCompareBase && appliedCompareTarget) {
@@ -167,7 +169,7 @@ export function FinancialsListDesktopComponent({
             return attachYearOverYearChanges(records, comparisonQuarters);
         }
 
-        let base = records.filter((r) => r.fiscalYear === fyNum);
+        let base = isAllFY ? records : records.filter((r) => r.fiscalYear === fyNum);
 
         if (selectedQuarter !== 'all') {
             const qNum = parseInt(selectedQuarter, 10);
@@ -176,7 +178,7 @@ export function FinancialsListDesktopComponent({
 
         const rows = [...base];
 
-        if (canManage) {
+        if (canManage && !isAllFY) {
             if (selectedQuarter === 'all' || selectedQuarter === '-1') {
                 const computed = buildComputedTotal(records, fyNum);
                 if (computed) rows.push(computed);
@@ -188,7 +190,12 @@ export function FinancialsListDesktopComponent({
             if (q === 0) return 5;
             return 6;
         };
-        return rows.sort((a, b) => sortKey(a.quarter) - sortKey(b.quarter));
+        return rows.sort((a, b) => {
+            if (isAllFY && a.fiscalYear !== b.fiscalYear) {
+                return b.fiscalYear - a.fiscalYear;
+            }
+            return sortKey(a.quarter) - sortKey(b.quarter);
+        });
     })();
 
     const renderMetricCell = (row, key, invertColors = false) => {
@@ -244,11 +251,10 @@ export function FinancialsListDesktopComponent({
                 </Button>
             ),
             cell: ({ row }) => {
-                const q = row.getValue('quarter');
                 const isComputed = row.original._isComputed;
                 return (
                     <div className="flex items-center gap-1.5">
-                        <span>{q === -1 ? 'Total Year' : QUARTER_LABELS[q]}</span>
+                        <span>{formatFinancialQuarterLabel(row.original)}</span>
                         {isComputed && (
                             <span className="text-xs text-muted-foreground">(computed)</span>
                         )}
@@ -362,7 +368,7 @@ export function FinancialsListDesktopComponent({
                   },
               ]
             : []),
-    ].filter((col) => !(isQuarterComparison && !isCompareActive && col.accessorKey === 'quarter'));
+    ];
 
     const fyOptions = (() => {
         const all = [...availableFYs];
@@ -393,6 +399,7 @@ export function FinancialsListDesktopComponent({
                 <SelectValue placeholder="Fiscal Year" />
             </SelectTrigger>
             <SelectContent>
+                <SelectItem value={ALL_FY_VALUE}>All FY</SelectItem>
                 {fyOptions.map((fy) => (
                     <SelectItem key={fy} value={String(fy)}>
                         FY{String(fy).slice(-2)}
@@ -492,7 +499,9 @@ export function FinancialsListDesktopComponent({
                     fiscalYear={
                         isCompareActive && appliedCompareTarget
                             ? appliedCompareTarget.fiscalYear
-                            : fyNum
+                            : isAllFY
+                              ? defaultFY
+                              : parseInt(selectedFY, 10)
                     }
                 />
                 {isCompareActive && appliedCompareBase && appliedCompareTarget ? (

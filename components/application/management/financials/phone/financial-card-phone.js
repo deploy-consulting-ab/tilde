@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { formatSEK } from '@/lib/utils';
 import { FinancialMetricCell } from '@/components/application/management/financials/financial-yoy-badge';
-import { QUARTER_LABELS } from '@/components/application/management/financials/financials-constants';
+import { formatFinancialQuarterLabel } from '@/components/application/management/financials/financials-constants';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,14 +13,11 @@ import { MoreHorizontal } from 'lucide-react';
 
 export function FinancialCardPhoneComponent({
     record,
-    comparisonLabel,
     canManage,
     openEditDialog,
     handleDelete,
 }) {
-    const quarterLabel =
-        comparisonLabel ??
-        (record.quarter === -1 ? 'Total Year' : QUARTER_LABELS[record.quarter]);
+    const quarterLabel = formatFinancialQuarterLabel(record);
     const yoy = record._yoy;
 
     const renderMetric = (key, invertColors = false) => {
