@@ -200,7 +200,7 @@ export function FinancialsListDesktopComponent({
 
     const renderMetricCell = (row, key, invertColors = false) => {
         const value = row.getValue(key);
-        if (isCompareActive && row.original._yoy) {
+        if (row.original._yoy) {
             return (
                 <FinancialMetricCell
                     value={value}
