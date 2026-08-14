@@ -42,6 +42,7 @@ import {
 } from '@/lib/utils';
 import { QUARTER_FILTER_OPTIONS, ALL_FY_VALUE, getQuarterComparisonConfig } from '../financials-constants';
 import { FinancialCardPhoneComponent } from './financial-card-phone';
+import { NoDataComponent } from '@/components/errors/no-data';
 
 export function FinancialsListPhoneComponent({
     records: initialRecords,
@@ -270,11 +271,9 @@ export function FinancialsListPhoneComponent({
             )}
 
             <div className="space-y-3">
-                {filteredRecords.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground text-sm">
-                        No records found
-                    </div>
-                )}
+                {filteredRecords.length === 0 ? (
+                    <NoDataComponent text="No data found" />
+                ) : null}
                 {filteredRecords.map((record) => {
                     return (
                         <FinancialCardPhoneComponent
