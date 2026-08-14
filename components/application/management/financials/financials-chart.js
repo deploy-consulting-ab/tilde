@@ -4,9 +4,14 @@ import { useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { buildQuarterComparisonSeries } from '@/lib/utils';
+import { buildQuarterComparisonSeries, aggregateFinancialQuarters } from '@/lib/utils';
 import { NoDataComponent } from '@/components/errors/no-data';
-import { QUARTER_LABELS, formatFinancialPeriodLabel } from './financials-constants';
+import {
+    QUARTER_LABELS,
+    AGGREGATED_QUARTER_PRESETS,
+    getQuarterFilterLabel,
+    formatFinancialPeriodLabel,
+} from './financials-constants';
 
 const FinancialsBarChartCanvas = dynamic(
     () =>
@@ -62,19 +67,61 @@ const CHART_CONFIG = {
     taxes: { label: 'Taxes', color: '#fddA0d' },
 };
 
+function buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarter = 'all') {
+    const fyRecords = records.filter((r) => r.fiscalYear === fiscalYear);
+
+    const toChartRow = (label, record) => ({
+        quarter: label,
+        revenue: record.revenue,
+        cost: record.cost,
+        profit: record.profit,
+    });
+
+    if (selectedQuarter === 'all') {
+        return fyRecords
+            .filter((r) => r.quarter >= 1 && r.quarter <= 4)
+            .sort((a, b) => a.quarter - b.quarter)
+            .map((r) => toChartRow(QUARTER_LABELS[r.quarter], r));
+    }
+
+    if (selectedQuarter === '0') {
+        const record = fyRecords.find((r) => r.quarter === 0);
+        return record ? [toChartRow('Total Year', record)] : [];
+    }
+
+    if (['1', '2', '3', '4'].includes(selectedQuarter)) {
+        const quarter = parseInt(selectedQuarter, 10);
+        const record = fyRecords.find((r) => r.quarter === quarter);
+        return record ? [toChartRow(QUARTER_LABELS[quarter], record)] : [];
+    }
+
+    const preset = AGGREGATED_QUARTER_PRESETS[selectedQuarter];
+    if (preset) {
+        const aggregated = aggregateFinancialQuarters(records, fiscalYear, preset.quarters);
+        return aggregated ? [toChartRow(preset.label, aggregated)] : [];
+    }
+
+    return [];
+}
+
 /**
  * Bar chart: Revenue / Cost / Profit / Taxes grouped by quarter for the selected FY.
  */
-export function FinancialsBarChartComponent({ records, fiscalYear, compact = false }) {
-    const quarterRecords = records
-        .filter((r) => r.fiscalYear === fiscalYear && r.quarter >= 1 && r.quarter <= 4)
-        .sort((a, b) => a.quarter - b.quarter)
-        .map((r) => ({
-            quarter: QUARTER_LABELS[r.quarter],
-            revenue: r.revenue,
-            cost: r.cost,
-            profit: r.profit,
-        }));
+export function FinancialsBarChartComponent({
+    records,
+    fiscalYear,
+    selectedQuarter = 'all',
+    compact = false,
+}) {
+    const quarterRecords = buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarter);
+    const quarterLabel = getQuarterFilterLabel(selectedQuarter);
+    const chartDescription = quarterLabel
+        ? `Revenue, Cost, Profit and Taxes for ${quarterLabel} FY${String(fiscalYear).slice(-2)}`
+        : `Revenue, Cost, Profit and Taxes for FY${String(fiscalYear).slice(-2)}`;
+    const noDataText =
+        selectedQuarter === 'all'
+            ? 'No quarterly data for this fiscal year'
+            : 'No data for this period';
 
     const { ref, handleTouchMove, handleTouchEnd } = useTouchToMouseEvents();
 
@@ -82,14 +129,12 @@ export function FinancialsBarChartComponent({ records, fiscalYear, compact = fal
         <Card variant="shadow">
             <CardHeader>
                 <CardTitle>Quarterly Breakdown</CardTitle>
-                <CardDescription>
-                    Revenue, Cost, Profit and Taxes for FY{String(fiscalYear).slice(-2)}
-                </CardDescription>
+                <CardDescription>{chartDescription}</CardDescription>
             </CardHeader>
             <CardContent>
                 {quarterRecords.length === 0 ? (
                     <div className="flex items-center justify-center h-48">
-                        <NoDataComponent text="No quarterly data for this fiscal year" />
+                        <NoDataComponent text={noDataText} />
                     </div>
                 ) : (
                     <div ref={ref} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>

@@ -143,6 +143,12 @@ export function FinancialsListPhoneComponent({
         label: comparisonLabel,
     } = getQuarterComparisonConfig(selectedQuarter, selectedFY);
 
+    const showCustomCompare = isCompareActive && appliedCompareBase && appliedCompareTarget;
+    const showQuarterComparison = !showCustomCompare && isQuarterComparison;
+    const showQuarterlyBreakdown = !isAllFY && !isCompareActive;
+    const showAnnualTrend = isAllFY && !isQuarterComparison && !isCompareActive;
+    const barChartFiscalYear = parseInt(selectedFY, 10);
+
     const filteredRecords = (() => {
         if (isCompareActive && appliedCompareBase && appliedCompareTarget) {
             return buildCustomPeriodComparison(
@@ -283,34 +289,31 @@ export function FinancialsListPhoneComponent({
             </div>
 
             <div className="space-y-6">
-                <FinancialsBarChartComponent
-                    records={records}
-                    fiscalYear={
-                        isCompareActive && appliedCompareTarget
-                            ? appliedCompareTarget.fiscalYear
-                            : isAllFY
-                              ? defaultFY
-                              : parseInt(selectedFY, 10)
-                    }
-                    compact
-                />
-                {isCompareActive && appliedCompareBase && appliedCompareTarget ? (
+                {showQuarterlyBreakdown ? (
+                    <FinancialsBarChartComponent
+                        records={records}
+                        fiscalYear={barChartFiscalYear}
+                        selectedQuarter={selectedQuarter}
+                        compact
+                    />
+                ) : null}
+                {showCustomCompare ? (
                     <FinancialsCustomPeriodComparisonChartComponent
                         records={records}
                         basePeriod={appliedCompareBase}
                         comparePeriod={appliedCompareTarget}
                         compact
                     />
-                ) : isQuarterComparison ? (
+                ) : showQuarterComparison ? (
                     <FinancialsQuarterComparisonChartComponent
                         records={records}
                         quarters={comparisonQuarters}
                         label={comparisonLabel}
                         compact
                     />
-                ) : (
+                ) : showAnnualTrend ? (
                     <FinancialsLineChartComponent records={records} compact />
-                )}
+                ) : null}
             </div>
 
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>

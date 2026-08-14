@@ -28,6 +28,15 @@ export const QUARTER_FILTER_OPTIONS = [
     { value: '9m', label: AGGREGATED_QUARTER_PRESETS['9m'].label },
 ];
 
+export function getQuarterFilterLabel(selectedQuarter) {
+    if (selectedQuarter === 'all') return null;
+    if (selectedQuarter === '0') return QUARTER_LABELS[0];
+    if (['1', '2', '3', '4'].includes(selectedQuarter)) {
+        return QUARTER_LABELS[parseInt(selectedQuarter, 10)];
+    }
+    return AGGREGATED_QUARTER_PRESETS[selectedQuarter]?.label ?? null;
+}
+
 /**
  * @param {number} fiscalYear
  * @param {number} quarter
