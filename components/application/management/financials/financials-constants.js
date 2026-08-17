@@ -23,6 +23,14 @@ export const QUARTER_FILTER_OPTIONS = [
     ...SINGLE_QUARTER_OPTIONS,
 ];
 
+export const FINANCIAL_METRIC_TOOLTIPS = {
+    revenue:
+        'Total income for the period. When comparing fiscal years, the badge is the change versus the previous year. Equals to SUMMA RÖRELSENS INTÄKTER',
+    cost: 'Total costs for the period. When comparing fiscal years, the badge is the change versus the previous year. An increase is shown in red. Equals to SUMMA RÖRELSENS KOSTNADER and includes the taxes',
+    profit: 'Profit for the period. When comparing fiscal years, the badge is the change versus the previous year. An increase is shown in green. Equals to Summa årets resultat',
+    taxes: 'Taxes for the period. When comparing fiscal years, the badge is the change versus the previous year. An increase is shown in red.',
+};
+
 /**
  * @param {string|string[]} selectedQuarters
  * @returns {string[]}

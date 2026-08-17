@@ -37,7 +37,7 @@ import {
     FinancialsPeriodCompareControls,
     FinancialsCompareQuartersButton,
 } from '@/components/application/management/financials/financials-period-compare-controls';
-import { ErrorDisplayComponent } from '@/components/errors/error-display';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
     getFinancialsAction,
     createFinancialRecordAction,
@@ -58,8 +58,33 @@ import {
     getQuarterComparisonConfig,
     formatFinancialQuarterLabel,
     isAllQuartersSelection,
+    FINANCIAL_METRIC_TOOLTIPS,
 } from '@/components/application/management/financials/financials-constants';
 import { FinancialsQuarterFilter } from '@/components/application/management/financials/financials-quarter-filter';
+
+const SORTABLE_HEADER_CLASS =
+    'h-8 -ml-3 font-semibold text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-transparent hover:cursor-pointer';
+
+function FinancialsMetricHeader({ column, label, tooltip }) {
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className={SORTABLE_HEADER_CLASS}
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                >
+                    {label}
+                    <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 opacity-50" />
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={4} className="max-w-xs text-left">
+                {tooltip}
+            </TooltipContent>
+        </Tooltip>
+    );
+}
 
 export function FinancialsListDesktopComponent({
     records: initialRecords,
@@ -280,15 +305,11 @@ export function FinancialsListDesktopComponent({
             size: 150,
             minSize: 120,
             header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 -ml-3 font-semibold text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-transparent hover:cursor-pointer"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    Revenue
-                    <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 opacity-50" />
-                </Button>
+                <FinancialsMetricHeader
+                    column={column}
+                    label="Revenue"
+                    tooltip={FINANCIAL_METRIC_TOOLTIPS.revenue}
+                />
             ),
             cell: ({ row }) => renderMetricCell(row, 'revenue'),
         },
@@ -297,15 +318,11 @@ export function FinancialsListDesktopComponent({
             size: 150,
             minSize: 120,
             header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 -ml-3 font-semibold text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-transparent hover:cursor-pointer"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    Cost
-                    <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 opacity-50" />
-                </Button>
+                <FinancialsMetricHeader
+                    column={column}
+                    label="Cost"
+                    tooltip={FINANCIAL_METRIC_TOOLTIPS.cost}
+                />
             ),
             cell: ({ row }) => renderMetricCell(row, 'cost', true),
         },
@@ -314,15 +331,11 @@ export function FinancialsListDesktopComponent({
             size: 150,
             minSize: 120,
             header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 -ml-3 font-semibold text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-transparent hover:cursor-pointer"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    Profit
-                    <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 opacity-50" />
-                </Button>
+                <FinancialsMetricHeader
+                    column={column}
+                    label="Profit"
+                    tooltip={FINANCIAL_METRIC_TOOLTIPS.profit}
+                />
             ),
             cell: ({ row }) => renderMetricCell(row, 'profit'),
         },
@@ -331,15 +344,11 @@ export function FinancialsListDesktopComponent({
             size: 150,
             minSize: 120,
             header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 -ml-3 font-semibold text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-transparent hover:cursor-pointer"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    Taxes
-                    <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 opacity-50" />
-                </Button>
+                <FinancialsMetricHeader
+                    column={column}
+                    label="Taxes"
+                    tooltip={FINANCIAL_METRIC_TOOLTIPS.taxes}
+                />
             ),
             cell: ({ row }) => renderMetricCell(row, 'taxes', true),
         },
