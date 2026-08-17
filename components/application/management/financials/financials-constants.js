@@ -6,10 +6,7 @@ export const QUARTER_LABELS = {
     4: 'Q4',
 };
 
-export const AGGREGATED_QUARTER_PRESETS = {
-    h1: { label: 'Q1 + Q2', quarters: [1, 2] },
-    '9m': { label: 'Q1 + Q2 + Q3', quarters: [1, 2, 3] },
-};
+export const ALL_QUARTERS_VALUE = 'all';
 
 export const SINGLE_QUARTER_OPTIONS = [
     { value: '1', label: 'Q1' },
@@ -21,20 +18,71 @@ export const SINGLE_QUARTER_OPTIONS = [
 export const ALL_FY_VALUE = 'all';
 
 export const QUARTER_FILTER_OPTIONS = [
-    { value: 'all', label: 'All Quarters' },
+    { value: ALL_QUARTERS_VALUE, label: 'All Quarters' },
     { value: '0', label: 'Total Year' },
     ...SINGLE_QUARTER_OPTIONS,
-    { value: 'h1', label: AGGREGATED_QUARTER_PRESETS.h1.label },
-    { value: '9m', label: AGGREGATED_QUARTER_PRESETS['9m'].label },
 ];
 
-export function getQuarterFilterLabel(selectedQuarter) {
-    if (selectedQuarter === 'all') return null;
-    if (selectedQuarter === '0') return QUARTER_LABELS[0];
-    if (['1', '2', '3', '4'].includes(selectedQuarter)) {
-        return QUARTER_LABELS[parseInt(selectedQuarter, 10)];
-    }
-    return AGGREGATED_QUARTER_PRESETS[selectedQuarter]?.label ?? null;
+export const FINANCIAL_METRIC_TOOLTIPS = {
+    revenue:
+        'Total income for the period. When comparing fiscal years, the badge is the change versus the previous year. Equals to SUMMA RÖRELSENS INTÄKTER',
+    cost: 'Total costs for the period. When comparing fiscal years, the badge is the change versus the previous year. An increase is shown in red. Equals to SUMMA RÖRELSENS KOSTNADER and includes the taxes',
+    profit: 'Profit for the period. When comparing fiscal years, the badge is the change versus the previous year. An increase is shown in green. Equals to Summa årets resultat',
+    taxes: 'Taxes for the period. When comparing fiscal years, the badge is the change versus the previous year. An increase is shown in red.',
+};
+
+/**
+ * @param {string|string[]} selectedQuarters
+ * @returns {string[]}
+ */
+export function normalizeQuarterSelection(selectedQuarters) {
+    if (Array.isArray(selectedQuarters)) return selectedQuarters;
+    if (selectedQuarters == null || selectedQuarters === '') return [ALL_QUARTERS_VALUE];
+    return [selectedQuarters];
+}
+
+/**
+ * @param {string|string[]} selectedQuarters
+ * @returns {boolean}
+ */
+export function isAllQuartersSelection(selectedQuarters) {
+    const values = normalizeQuarterSelection(selectedQuarters);
+    return values.length === 0 || values.includes(ALL_QUARTERS_VALUE);
+}
+
+/**
+ * Toggle a quarter in the filter. "All Quarters" resets the selection.
+ * Unchecking the last item returns to All Quarters.
+ * @param {string[]} current
+ * @param {string} value
+ * @returns {string[]}
+ */
+export function toggleQuarterFilter(current, value) {
+    if (value === ALL_QUARTERS_VALUE) return [ALL_QUARTERS_VALUE];
+
+    const selected = normalizeQuarterSelection(current).filter(
+        (item) => item !== ALL_QUARTERS_VALUE
+    );
+    const next = selected.includes(value)
+        ? selected.filter((item) => item !== value)
+        : [...selected, value].toSorted((a, b) => Number(a) - Number(b));
+
+    return next.length === 0 ? [ALL_QUARTERS_VALUE] : next;
+}
+
+/**
+ * @param {string|string[]} selectedQuarters
+ * @returns {string}
+ */
+export function getQuarterFilterLabel(selectedQuarters) {
+    if (isAllQuartersSelection(selectedQuarters)) return 'All Quarters';
+
+    return normalizeQuarterSelection(selectedQuarters)
+        .map((value) => {
+            if (value === '0') return QUARTER_LABELS[0];
+            return QUARTER_LABELS[parseInt(value, 10)] ?? value;
+        })
+        .join(', ');
 }
 
 /**
@@ -64,33 +112,32 @@ export function formatFinancialQuarterLabel(record) {
 
 /**
  * Resolve quarter filter selection into comparison mode config.
- * Comparison across fiscal years is only enabled when "All FY" is selected.
- * @param {string} selectedQuarter
+ * Comparison across fiscal years is only enabled when "All FY" is selected
+ * and one or more of Total Year / Q1–Q4 are selected.
+ * @param {string|string[]} selectedQuarters
  * @param {string} selectedFY
  * @returns {{ isComparison: boolean, quarters: number[]|null, label: string|null }}
  */
-export function getQuarterComparisonConfig(selectedQuarter, selectedFY) {
-    if (selectedFY !== ALL_FY_VALUE) {
+export function getQuarterComparisonConfig(selectedQuarters, selectedFY) {
+    if (selectedFY !== ALL_FY_VALUE || isAllQuartersSelection(selectedQuarters)) {
         return { isComparison: false, quarters: null, label: null };
     }
 
-    if (['1', '2', '3', '4'].includes(selectedQuarter)) {
-        const quarter = parseInt(selectedQuarter, 10);
-        return {
-            isComparison: true,
-            quarters: [quarter],
-            label: QUARTER_LABELS[quarter],
-        };
+    const values = normalizeQuarterSelection(selectedQuarters);
+    const quarters = [];
+
+    for (const value of values) {
+        const quarter = parseInt(value, 10);
+        if (quarter >= 0 && quarter <= 4) quarters.push(quarter);
     }
 
-    const preset = AGGREGATED_QUARTER_PRESETS[selectedQuarter];
-    if (preset) {
-        return {
-            isComparison: true,
-            quarters: preset.quarters,
-            label: preset.label,
-        };
+    if (quarters.length === 0) {
+        return { isComparison: false, quarters: null, label: null };
     }
 
-    return { isComparison: false, quarters: null, label: null };
+    return {
+        isComparison: true,
+        quarters,
+        label: quarters.map((quarter) => QUARTER_LABELS[quarter]).join(', '),
+    };
 }
