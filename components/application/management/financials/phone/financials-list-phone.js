@@ -37,10 +37,15 @@ import {
     getCurrentFiscalYear,
     buildComputedTotal,
     getFinancialFiscalYears,
-    attachYearOverYearChanges,
+    attachYearOverYearChangesForQuarters,
     buildCustomPeriodComparison,
 } from '@/lib/utils';
-import { QUARTER_FILTER_OPTIONS, ALL_FY_VALUE, getQuarterComparisonConfig } from '../financials-constants';
+import {
+    ALL_FY_VALUE,
+    getQuarterComparisonConfig,
+    isAllQuartersSelection,
+} from '../financials-constants';
+import { FinancialsQuarterFilter } from '../financials-quarter-filter';
 import { FinancialCardPhoneComponent } from './financial-card-phone';
 import { NoDataComponent } from '@/components/errors/no-data';
 
@@ -63,7 +68,7 @@ export function FinancialsListPhoneComponent({
         availableFYs.length > 0 ? availableFYs[availableFYs.length - 1] : currentFY;
 
     const [selectedFY, setSelectedFY] = useState(String(defaultFY));
-    const [selectedQuarter, setSelectedQuarter] = useState('all');
+    const [selectedQuarters, setSelectedQuarters] = useState(['all']);
     const [compareBaseFY, setCompareBaseFY] = useState(String(defaultBaseFY));
     const [compareBaseQuarter, setCompareBaseQuarter] = useState('1');
     const [compareTargetFY, setCompareTargetFY] = useState(String(defaultFY));
@@ -137,15 +142,17 @@ export function FinancialsListPhoneComponent({
     };
 
     const isAllFY = selectedFY === ALL_FY_VALUE;
+    const isAllQuarters = isAllQuartersSelection(selectedQuarters);
     const fyNum = isAllFY ? defaultFY : parseInt(selectedFY, 10);
     const {
         isComparison: isQuarterComparison,
         quarters: comparisonQuarters,
         label: comparisonLabel,
-    } = getQuarterComparisonConfig(selectedQuarter, selectedFY);
+    } = getQuarterComparisonConfig(selectedQuarters, selectedFY);
 
     const showCustomCompare = isCompareActive && appliedCompareBase && appliedCompareTarget;
-    const showQuarterComparison = !showCustomCompare && isQuarterComparison;
+    const showQuarterComparison =
+        !showCustomCompare && isQuarterComparison && comparisonQuarters?.length === 1;
     const showQuarterlyBreakdown = !isAllFY && !isCompareActive;
     const showAnnualTrend = isAllFY && !isQuarterComparison && !isCompareActive;
     const barChartFiscalYear = parseInt(selectedFY, 10);
@@ -160,23 +167,27 @@ export function FinancialsListPhoneComponent({
         }
 
         if (isQuarterComparison) {
-            return attachYearOverYearChanges(records, comparisonQuarters);
+            return attachYearOverYearChangesForQuarters(
+                records,
+                comparisonQuarters
+            );
         }
 
         let base = isAllFY ? records : records.filter((r) => r.fiscalYear === fyNum);
 
-        if (selectedQuarter !== 'all') {
-            const qNum = parseInt(selectedQuarter, 10);
-            base = base.filter((r) => r.quarter === qNum);
+        if (!isAllQuarters) {
+            const selectedQuarterNumbers = new Set();
+            for (const value of selectedQuarters) {
+                selectedQuarterNumbers.add(parseInt(value, 10));
+            }
+            base = base.filter((r) => selectedQuarterNumbers.has(r.quarter));
         }
 
         const rows = [...base];
 
-        if (canManage && !isAllFY) {
-            if (selectedQuarter === 'all' || selectedQuarter === '-1') {
-                const computed = buildComputedTotal(records, fyNum);
-                if (computed) rows.push(computed);
-            }
+        if (canManage && !isAllFY && isAllQuarters) {
+            const computed = buildComputedTotal(records, fyNum);
+            if (computed) rows.push(computed);
         }
 
         const sortKey = (q) => {
@@ -235,18 +246,11 @@ export function FinancialsListPhoneComponent({
                         </SelectContent>
                     </Select>
 
-                    <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
-                        <SelectTrigger className="flex-1 hover:cursor-pointer">
-                            <SelectValue placeholder="Quarter" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {QUARTER_FILTER_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <FinancialsQuarterFilter
+                        selectedQuarters={selectedQuarters}
+                        onSelectedQuartersChange={setSelectedQuarters}
+                        className="flex-1"
+                    />
 
                     <Button
                         size="sm"
@@ -292,7 +296,7 @@ export function FinancialsListPhoneComponent({
                     <FinancialsBarChartComponent
                         records={records}
                         fiscalYear={barChartFiscalYear}
-                        selectedQuarter={selectedQuarter}
+                        selectedQuarters={selectedQuarters}
                         compact
                     />
                 ) : null}

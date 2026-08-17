@@ -4,12 +4,13 @@ import { useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { buildQuarterComparisonSeries, aggregateFinancialQuarters } from '@/lib/utils';
+import { buildQuarterComparisonSeries } from '@/lib/utils';
 import { NoDataComponent } from '@/components/errors/no-data';
 import {
     QUARTER_LABELS,
-    AGGREGATED_QUARTER_PRESETS,
     getQuarterFilterLabel,
+    isAllQuartersSelection,
+    normalizeQuarterSelection,
     formatFinancialPeriodLabel,
 } from './financials-constants';
 
@@ -67,7 +68,7 @@ const CHART_CONFIG = {
     taxes: { label: 'Taxes', color: '#fddA0d' },
 };
 
-function buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarter = 'all') {
+function buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarters = 'all') {
     const fyRecords = records.filter((r) => r.fiscalYear === fiscalYear);
 
     const toChartRow = (label, record) => ({
@@ -77,31 +78,25 @@ function buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarter = 'a
         profit: record.profit,
     });
 
-    if (selectedQuarter === 'all') {
+    if (isAllQuartersSelection(selectedQuarters)) {
         return fyRecords
             .filter((r) => r.quarter >= 1 && r.quarter <= 4)
-            .sort((a, b) => a.quarter - b.quarter)
+            .toSorted((a, b) => a.quarter - b.quarter)
             .map((r) => toChartRow(QUARTER_LABELS[r.quarter], r));
     }
 
-    if (selectedQuarter === '0') {
-        const record = fyRecords.find((r) => r.quarter === 0);
-        return record ? [toChartRow('Total Year', record)] : [];
-    }
+    return normalizeQuarterSelection(selectedQuarters).flatMap((value) => {
+        if (value === '0') {
+            const record = fyRecords.find((r) => r.quarter === 0);
+            return record ? [toChartRow('Total Year', record)] : [];
+        }
 
-    if (['1', '2', '3', '4'].includes(selectedQuarter)) {
-        const quarter = parseInt(selectedQuarter, 10);
+        const quarter = parseInt(value, 10);
+        if (quarter < 1 || quarter > 4) return [];
+
         const record = fyRecords.find((r) => r.quarter === quarter);
         return record ? [toChartRow(QUARTER_LABELS[quarter], record)] : [];
-    }
-
-    const preset = AGGREGATED_QUARTER_PRESETS[selectedQuarter];
-    if (preset) {
-        const aggregated = aggregateFinancialQuarters(records, fiscalYear, preset.quarters);
-        return aggregated ? [toChartRow(preset.label, aggregated)] : [];
-    }
-
-    return [];
+    });
 }
 
 /**
@@ -110,18 +105,18 @@ function buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarter = 'a
 export function FinancialsBarChartComponent({
     records,
     fiscalYear,
-    selectedQuarter = 'all',
+    selectedQuarters = 'all',
     compact = false,
 }) {
-    const quarterRecords = buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarter);
-    const quarterLabel = getQuarterFilterLabel(selectedQuarter);
+    const quarterRecords = buildQuarterlyBreakdownSeries(records, fiscalYear, selectedQuarters);
+    const isAllQuarters = isAllQuartersSelection(selectedQuarters);
+    const quarterLabel = isAllQuarters ? null : getQuarterFilterLabel(selectedQuarters);
     const chartDescription = quarterLabel
         ? `Revenue, Cost, Profit and Taxes for ${quarterLabel} FY${String(fiscalYear).slice(-2)}`
         : `Revenue, Cost, Profit and Taxes for FY${String(fiscalYear).slice(-2)}`;
-    const noDataText =
-        selectedQuarter === 'all'
-            ? 'No quarterly data for this fiscal year'
-            : 'No data for this period';
+    const noDataText = isAllQuarters
+        ? 'No quarterly data for this fiscal year'
+        : 'No data for this period';
 
     const { ref, handleTouchMove, handleTouchEnd } = useTouchToMouseEvents();
 
