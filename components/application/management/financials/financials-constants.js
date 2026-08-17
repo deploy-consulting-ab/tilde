@@ -105,7 +105,7 @@ export function formatFinancialQuarterLabel(record) {
 /**
  * Resolve quarter filter selection into comparison mode config.
  * Comparison across fiscal years is only enabled when "All FY" is selected
- * and one or more Q1–Q4 values are selected (not Total Year).
+ * and one or more of Total Year / Q1–Q4 are selected.
  * @param {string|string[]} selectedQuarters
  * @param {string} selectedFY
  * @returns {{ isComparison: boolean, quarters: number[]|null, label: string|null }}
@@ -117,19 +117,13 @@ export function getQuarterComparisonConfig(selectedQuarters, selectedFY) {
 
     const values = normalizeQuarterSelection(selectedQuarters);
     const quarters = [];
-    let hasTotalYear = false;
 
     for (const value of values) {
-        if (value === '0') {
-            hasTotalYear = true;
-            continue;
-        }
-
         const quarter = parseInt(value, 10);
-        if (quarter >= 1 && quarter <= 4) quarters.push(quarter);
+        if (quarter >= 0 && quarter <= 4) quarters.push(quarter);
     }
 
-    if (hasTotalYear || quarters.length === 0) {
+    if (quarters.length === 0) {
         return { isComparison: false, quarters: null, label: null };
     }
 
