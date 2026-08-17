@@ -61,6 +61,7 @@ import {
     FINANCIAL_METRIC_TOOLTIPS,
 } from '@/components/application/management/financials/financials-constants';
 import { FinancialsQuarterFilter } from '@/components/application/management/financials/financials-quarter-filter';
+import { ErrorDisplayComponent } from '@/components/application/error-display';
 
 const SORTABLE_HEADER_CLASS =
     'h-8 -ml-3 font-semibold text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-transparent hover:cursor-pointer';
